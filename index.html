@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Remberg Aufnahme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f5f0e8;
+  --card:      #ffffff;
+  --card2:     #faf7f2;
+  --border:    #e2d9cc;
+  --border2:   #c8bfb0;
+  --accent:    #d97706;
+  --accent-lt: #fef3c7;
+  --accent-dk: #b45309;
+  --green:     #16a34a;
+  --green-lt:  #dcfce7;
+  --red:       #dc2626;
+  --red-lt:    #fee2e2;
+  --blue:      #2563eb;
+  --text:      #1c1917;
+  --text-md:   #57534e;
+  --text-sm:   #a8a29e;
+  --shadow:    0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.12);
+  --r:         10px;
+  --sans:      'Nunito', sans-serif;
+  --mono:      'Fira Code', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.header-title { display: flex; flex-direction: column; gap: 1px; }
+.header-title h1 { font-size: 17px; font-weight: 900; color: var(--text); letter-spacing: -.01em; }
+.header-title span { font-size: 11px; font-weight: 600; color: var(--text-sm); letter-spacing: .04em; text-transform: uppercase; }
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: all .2s;
+}
+.sync-status.ok    { background: var(--green-lt); color: var(--green); }
+.sync-status.err   { background: var(--red-lt);   color: var(--red); }
+.sync-status.idle  { background: var(--accent-lt); color: var(--accent-dk); }
+.sync-status.syncing { background: var(--accent-lt); color: var(--accent-dk); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.sync-status.syncing .sync-dot { animation: blink .7s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* ── TABS ── */
+.tabs {
+  background: var(--card);
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  flex: 1;
+  padding: 11px 4px;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-sm);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .15s;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── PANEL ── */
+.panel { display: none; padding: 16px; }
+.panel.active { display: block; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-sm);
+  margin: 20px 0 10px;
+}
+.section-label:first-child { margin-top: 0; }
+
+/* ── FIELD ── */
+.field { margin-bottom: 14px; }
+.field > label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-md);
+  margin-bottom: 6px;
+}
+.req { color: var(--accent); }
+
+input[type="text"] {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 600;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+  box-shadow: var(--shadow);
+}
+input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+input[type="text"]::placeholder { color: var(--text-sm); font-family: var(--sans); font-size: 14px; font-weight: 400; }
+
+/* ── PHOTO CAPTURE ── */
+.photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+.photo-slot {
+  position: relative;
+  background: var(--card);
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: border-color .15s;
+  aspect-ratio: 1;
+}
+.photo-slot.has-photo { border-style: solid; border-color: var(--green); }
+.photo-slot input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%;
+  cursor: pointer; z-index: 2;
+}
+.photo-placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 5px; pointer-events: none; padding: 8px;
+}
+.photo-placeholder .ph-icon { font-size: 28px; }
+.photo-placeholder .ph-txt { font-size: 11px; font-weight: 700; color: var(--text-sm); text-align: center; line-height: 1.3; }
+.photo-slot.has-photo .photo-placeholder { display: none; }
+
+.photo-preview {
+  display: none;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.photo-slot.has-photo .photo-preview { display: block; }
+
+.photo-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,.88);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 4px;
+  color: var(--text-md);
+  pointer-events: none;
+  z-index: 1;
+}
+.photo-clear {
+  display: none;
+  position: absolute;
+  top: 6px; right: 6px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  font-size: 13px;
+  cursor: pointer; z-index: 3;
+  box-shadow: var(--shadow);
+  color: var(--text-md);
+}
+.photo-slot.has-photo .photo-clear { display: flex; align-items: center; justify-content: center; }
+
+/* ── AUDIO ── */
+.audio-row { display: flex; gap: 8px; }
+.audio-btn {
+  flex: 1;
+  padding: 13px 12px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  box-shadow: var(--shadow);
+  transition: all .15s;
+}
+.audio-btn.recording { background: var(--red-lt); border-color: var(--red); color: var(--red); }
+.audio-btn.recording .aud-dot { animation: blink .7s infinite; }
+.audio-btn.has-audio  { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+.aud-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.audio-timer { font-family: var(--mono); font-size: 12px; }
+audio.playback { width: 100%; margin-top: 8px; }
+
+/* ── CHECKBOXES ── */
+.check-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 13px 14px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  margin-bottom: 8px;
+  transition: border-color .15s;
+}
+.check-card.checked-benning { border-color: var(--green); background: var(--green-lt); }
+.check-card.checked-followup { border-color: var(--accent); background: var(--accent-lt); }
+.check-card input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.check-card .ck-text { font-size: 14px; font-weight: 700; color: var(--text); }
+.check-card .ck-sub  { font-size: 11px; font-weight: 600; color: var(--text-sm); }
+
+/* ── SAVE BUTTON ── */
+.btn-save {
+  width: 100%;
+  padding: 16px;
+  margin-top: 6px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(217,119,6,.35);
+  transition: opacity .15s, transform .1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-save:active  { transform: scale(.98); opacity: .9; }
+.btn-save:disabled { opacity: .4; cursor: not-allowed; }
+.btn-save.saving  { background: var(--text-md); box-shadow: none; }
+
+/* ── SETUP BANNER ── */
+.setup-banner {
+  background: var(--accent-lt);
+  border: 1.5px solid #fcd34d;
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-dk);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.setup-banner.hidden { display: none; }
+
+/* ── WEBHOOK CONFIG ── */
+.webhook-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+.webhook-card h3 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.webhook-card p  { font-size: 12px; color: var(--text-md); margin-bottom: 10px; line-height: 1.5; }
+.webhook-card input {
+  width: 100%; background: var(--card2);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; font-size: 12px; font-family: var(--mono);
+  color: var(--text); outline: none; margin-bottom: 8px;
+  -webkit-appearance: none;
+}
+.webhook-card input:focus { border-color: var(--accent); }
+.btn-sm {
+  padding: 9px 14px; border-radius: 8px; border: 1.5px solid var(--accent);
+  background: var(--accent); color: white;
+  font-family: var(--sans); font-size: 13px; font-weight: 800;
+  cursor: pointer;
+}
+.btn-sm-ghost {
+  padding: 9px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--text-md);
+  font-family: var(--sans); font-size: 13px; font-weight: 800;
+  cursor: pointer; margin-left: 6px;
+}
+
+/* ── LIST ── */
+.asset-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.asset-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; cursor: pointer;
+}
+.asset-id { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--accent-dk); }
+.badge-row { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.badge {
+  font-size: 10px; font-weight: 800; padding: 2px 7px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: .04em;
+}
+.b-green  { background: var(--green-lt); color: var(--green); }
+.b-amber  { background: var(--accent-lt); color: var(--accent-dk); }
+.b-gray   { background: #f5f5f4; color: var(--text-sm); }
+.b-blue   { background: #dbeafe; color: var(--blue); }
+.b-red    { background: var(--red-lt); color: var(--red); }
+
+.asset-card-body { display: none; padding: 12px 14px; border-top: 1px solid var(--border); }
+.asset-card-body.open { display: block; }
+.thumb-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.thumb {
+  flex: 1; aspect-ratio: 1;
+  background: var(--card2); border-radius: 8px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--text-sm); position: relative;
+  border: 1px solid var(--border);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-lbl {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,.82); font-size: 9px; font-weight: 800;
+  text-transform: uppercase; text-align: center; padding: 3px;
+  color: var(--text-md);
+}
+.asset-meta-row {
+  font-size: 12px; color: var(--text-sm); font-family: var(--mono);
+  margin-bottom: 8px;
+}
+.asset-note { font-size: 13px; color: var(--text-md); margin-bottom: 8px; }
+.btn-del {
+  background: none; border: 1.5px solid var(--red); color: var(--red);
+  padding: 7px 12px; border-radius: 8px; font-family: var(--sans);
+  font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase;
+}
+
+/* ── EXPORT / STATS ── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 12px 14px; box-shadow: var(--shadow);
+  text-align: center;
+}
+.stat-num { font-size: 28px; font-weight: 900; color: var(--accent); font-family: var(--mono); }
+.stat-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-sm); margin-top: 2px; }
+
+.export-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.export-btn {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 16px 10px; cursor: pointer;
+  text-align: center; box-shadow: var(--shadow); transition: border-color .15s;
+}
+.export-btn:active { border-color: var(--accent); }
+.export-btn .eb-icon { font-size: 26px; margin-bottom: 5px; }
+.export-btn .eb-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--text-sm); }
+
+.danger-zone {
+  background: var(--red-lt); border: 1.5px solid #fca5a5;
+  border-radius: var(--r); padding: 14px;
+}
+.danger-zone h3 { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+.danger-zone p  { font-size: 12px; color: var(--text-md); margin-bottom: 10px; }
+.btn-danger {
+  background: var(--red); color: white; border: none;
+  padding: 10px 16px; border-radius: 8px;
+  font-family: var(--sans); font-size: 13px; font-weight: 800;
+  text-transform: uppercase; cursor: pointer;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: white;
+  font-weight: 800; font-size: 14px;
+  padding: 12px 20px; border-radius: 30px;
+  z-index: 999; transition: transform .25s cubic-bezier(.17,.67,.4,1.2);
+  white-space: nowrap; box-shadow: var(--shadow-lg);
+}
+.toast.show   { transform: translateX(-50%) translateY(0); }
+.toast.good   { background: var(--green); }
+.toast.bad    { background: var(--red); }
+.toast.warn   { background: var(--accent); }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 48px 24px; color: var(--text-sm); }
+.empty .big { font-size: 48px; margin-bottom: 12px; }
+.empty p    { font-size: 14px; font-weight: 600; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <h1>🏪 Remberg Aufnahme</h1>
+    <span>Bäckerei Bubner</span>
+  </div>
+  <div class="sync-status idle" id="syncStatus">
+    <div class="sync-dot"></div>
+    <span id="syncLabel">0 erfasst</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('capture',this)">➕ Neu</button>
+  <button class="tab"        onclick="switchTab('list',this)">📋 Liste</button>
+  <button class="tab"        onclick="switchTab('settings',this)">⚙️ Setup</button>
+  <button class="tab"        onclick="switchTab('export',this)">📤 Export</button>
+</div>
+
+<!-- ══════════════════════════════
+     TAB: AUFNAHME
+══════════════════════════════ -->
+<div class="panel active" id="tab-capture">
+
+  <div class="setup-banner" id="setupBanner">
+    ⚠️ Noch kein Webhook konfiguriert — Daten werden nur lokal gespeichert. <strong>Setup-Tab öffnen.</strong>
+  </div>
+
+  <p class="section-label">Anlage</p>
+
+  <div class="field">
+    <label>Anlagen-ID <span class="req">*</span></label>
+    <input type="text" id="assetId" placeholder="z.B. 9006-001 oder A_00123"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+
+  <p class="section-label">Fotos <span class="req">*</span> Anlage  ·  QR / Typenschild</p>
+
+  <div class="photo-pair">
+    <div class="photo-slot" id="wrap-asset">
+      <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('asset',this)">
+      <div class="photo-placeholder">
+        <span class="ph-icon">📷</span>
+        <span class="ph-txt">Anlage fotografieren</span>
+      </div>
+      <img class="photo-preview" id="prev-asset" alt="">
+      <div class="photo-label">Anlage</div>
+      <button class="photo-clear" onclick="clearPhoto('asset',event)">✕</button>
+    </div>
+    <div class="photo-slot" id="wrap-qr">
+      <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('qr',this)">
+      <div class="photo-placeholder">
+        <span class="ph-icon">🔲</span>
+        <span class="ph-txt">QR / Typenschild</span>
+      </div>
+      <img class="photo-preview" id="prev-qr" alt="">
+      <div class="photo-label">QR / Schild</div>
+      <button class="photo-clear" onclick="clearPhoto('qr',event)">✕</button>
+    </div>
+  </div>
+
+  <p class="section-label">Kommentar (optional)</p>
+
+  <div class="field">
+    <label>🎤 Audiokommentar</label>
+    <div class="audio-row">
+      <button class="audio-btn" id="audioBtn" onclick="toggleAudio()">
+        <span class="aud-dot"></span>
+        <span id="audioBtnText">Aufnahme starten</span>
+        <span class="audio-timer" id="audioTimer" style="display:none"></span>
+      </button>
+    </div>
+    <audio class="playback" id="audioPlayback" controls style="display:none"></audio>
+  </div>
+
+  <div class="field">
+    <label>✏️ Textkommentar</label>
+    <input type="text" id="comment" placeholder="Zustand, Auffälligkeiten, …">
+  </div>
+
+  <p class="section-label">Status</p>
+
+  <label class="check-card" id="cc-benning">
+    <input type="checkbox" id="inBenning" onchange="updateCardStyle()">
+    <div>
+      <div class="ck-text">⚡ In Benning erfasst</div>
+      <div class="ck-sub">Elektrische Prüfung angelegt</div>
+    </div>
+  </label>
+  <label class="check-card" id="cc-followup">
+    <input type="checkbox" id="needsFollowUp" onchange="updateCardStyle()">
+    <div>
+      <div class="ck-text">🔔 Nacharbeit erforderlich</div>
+      <div class="ck-sub">Foto fehlt, Schild unleserlich, …</div>
+    </div>
+  </label>
+
+  <button class="btn-save" id="saveBtn" onclick="saveAsset()">
+    <span>💾</span> Anlage speichern & senden
+  </button>
+  <div style="height:32px"></div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB: LISTE
+══════════════════════════════ -->
+<div class="panel" id="tab-list">
+  <p class="section-label">Erfasste Anlagen</p>
+  <div id="assetList"></div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB: SETUP
+══════════════════════════════ -->
+<div class="panel" id="tab-settings">
+
+  <p class="section-label">Google Sheets Webhook</p>
+
+  <div class="webhook-card">
+    <h3>📡 Webhook-URL (Google Apps Script)</h3>
+    <p>Füge hier die URL deines Google Apps Script Web Apps ein. Nach jeder Speicherung werden Metadaten + Fotos automatisch in dein Google Sheet übertragen.</p>
+    <input type="text" id="webhookUrl" placeholder="https://script.google.com/macros/s/…/exec">
+    <div>
+      <button class="btn-sm" onclick="saveWebhook()">Speichern</button>
+      <button class="btn-sm-ghost" onclick="testWebhook()">Verbindung testen</button>
+    </div>
+  </div>
+
+  <p class="section-label">Erfasser</p>
+  <div class="webhook-card">
+    <h3>👤 Dein Name</h3>
+    <p>Wird bei jedem Eintrag mitgespeichert (für die Rückverfolgung wer was erfasst hat).</p>
+    <input type="text" id="captorName" placeholder="z.B. Max Muster">
+    <button class="btn-sm" onclick="saveName()">Speichern</button>
+  </div>
+
+  <p class="section-label">So richtest du den Webhook ein</p>
+  <div class="webhook-card">
+    <h3>📋 Schritt-für-Schritt</h3>
+    <p style="line-height:1.7">
+      1. <strong>script.google.com</strong> öffnen<br>
+      2. „Neues Projekt" → Code aus der Apps-Script-Datei einfügen<br>
+      3. „Bereitstellen" → „Neue Bereitstellung" → Typ: <em>Web-App</em><br>
+      4. Zugriff: <em>Jeder</em> → bereitstellen<br>
+      5. URL kopieren und oben einfügen<br><br>
+      ⚠️ Bei „Zugriff von jedem" ist die URL öffentlich — behandle sie wie ein Passwort.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB: EXPORT
+══════════════════════════════ -->
+<div class="panel" id="tab-export">
+
+  <p class="section-label">Übersicht</p>
+  <div class="stat-grid" id="statGrid"></div>
+
+  <p class="section-label">Lokaler Export (Backup)</p>
+  <div class="export-btns">
+    <div class="export-btn" onclick="exportJSON()">
+      <div class="eb-icon">📦</div>
+      <div class="eb-lbl">JSON (mit Fotos)</div>
+    </div>
+    <div class="export-btn" onclick="exportCSV()">
+      <div class="eb-icon">📊</div>
+      <div class="eb-lbl">CSV für Excel</div>
+    </div>
+  </div>
+
+  <p class="section-label">Fehlgeschlagene Pushes erneut senden</p>
+  <div style="margin-bottom:20px;">
+    <button class="btn-sm" onclick="retryFailed()">🔄 Fehlgeschlagene erneut senden (<span id="failedCount">0</span>)</button>
+  </div>
+
+  <div class="danger-zone">
+    <h3>⚠ Alle lokalen Daten löschen</h3>
+    <p>Erst exportieren oder sicherstellen, dass alle Einträge im Sheet sind!</p>
+    <button class="btn-danger" onclick="clearAll()">Alles löschen</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────
+let assets  = JSON.parse(localStorage.getItem('rb_assets') || '[]');
+let webhook = localStorage.getItem('rb_webhook') || '';
+let captor  = localStorage.getItem('rb_captor')  || '';
+
+let photoAsset = null, photoQR = null;
+let audioBlob = null, audioUrl = null;
+let mediaRecorder = null, recInterval = null, recSecs = 0;
+
+// ── INIT ───────────────────────────────────
+(function init() {
+  updateSyncBadge();
+  if (webhook) {
+    document.getElementById('webhookUrl').value = webhook;
+    document.getElementById('setupBanner').classList.add('hidden');
+  }
+  if (captor) document.getElementById('captorName').value = captor;
+  updateFailedCount();
+})();
+
+// ── TABS ───────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'list')   renderList();
+  if (name === 'export') renderStats();
+}
+
+// ── PHOTOS ─────────────────────────────────
+function handlePhoto(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (type === 'asset') {
+      photoAsset = e.target.result;
+      document.getElementById('prev-asset').src = photoAsset;
+      document.getElementById('wrap-asset').classList.add('has-photo');
+    } else {
+      photoQR = e.target.result;
+      document.getElementById('prev-qr').src = photoQR;
+      document.getElementById('wrap-qr').classList.add('has-photo');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(type, e) {
+  e.stopPropagation(); e.preventDefault();
+  const id = type === 'asset' ? 'asset' : 'qr';
+  document.getElementById('prev-' + id).src = '';
+  document.getElementById('wrap-' + id).classList.remove('has-photo');
+  document.getElementById('wrap-' + id).querySelector('input[type="file"]').value = '';
+  if (type === 'asset') photoAsset = null; else photoQR = null;
+}
+
+// ── AUDIO ──────────────────────────────────
+async function toggleAudio() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') { stopAudio(); return; }
+  if (audioBlob) { clearAudio(); return; }
+  await startAudio();
+}
+
+async function startAudio() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const chunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      audioBlob = new Blob(chunks, { type: 'audio/webm' });
+      audioUrl  = URL.createObjectURL(audioBlob);
+      const p = document.getElementById('audioPlayback');
+      p.src = audioUrl; p.style.display = 'block';
+      const btn = document.getElementById('audioBtn');
+      btn.classList.remove('recording'); btn.classList.add('has-audio');
+      document.getElementById('audioBtnText').textContent = 'Audio löschen';
+      document.getElementById('audioTimer').style.display = 'none';
+      stream.getTracks().forEach(t => t.stop());
+    };
+    mediaRecorder.start(); recSecs = 0;
+    document.getElementById('audioBtn').classList.add('recording');
+    document.getElementById('audioBtnText').textContent = 'Stoppen';
+    document.getElementById('audioTimer').style.display = 'inline';
+    recInterval = setInterval(() => {
+      recSecs++;
+      const m = String(Math.floor(recSecs/60)).padStart(2,'0');
+      const s = String(recSecs%60).padStart(2,'0');
+      document.getElementById('audioTimer').textContent = `${m}:${s}`;
+    }, 1000);
+  } catch { showToast('Mikrofon nicht verfügbar','warn'); }
+}
+
+function stopAudio() { clearInterval(recInterval); if (mediaRecorder) mediaRecorder.stop(); }
+
+function clearAudio() {
+  audioBlob = audioUrl = null;
+  document.getElementById('audioPlayback').style.display = 'none';
+  const btn = document.getElementById('audioBtn');
+  btn.classList.remove('has-audio','recording');
+  document.getElementById('audioBtnText').textContent = 'Aufnahme starten';
+  document.getElementById('audioTimer').style.display = 'none';
+}
+
+// ── SAVE & PUSH ────────────────────────────
+async function saveAsset() {
+  const id = document.getElementById('assetId').value.trim();
+  if (!id)          { showToast('Anlagen-ID fehlt!','bad'); return; }
+  if (!photoAsset)  { showToast('Foto Anlage fehlt!','bad'); return; }
+  if (mediaRecorder && mediaRecorder.state === 'recording') stopAudio();
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.classList.add('saving');
+  btn.innerHTML = '<span>⏳</span> Wird gespeichert…';
+
+  let audioData = null;
+  if (audioBlob) audioData = await blobToB64(audioBlob);
+
+  const entry = {
+    id:          'rb_' + Date.now(),
+    assetId:     id,
+    captor:      captor || '—',
+    timestamp:   new Date().toISOString(),
+    photoAsset:  photoAsset,
+    photoQR:     photoQR   || null,
+    audio:       audioData  || null,
+    comment:     document.getElementById('comment').value.trim(),
+    inBenning:   document.getElementById('inBenning').checked,
+    needsFollowUp: document.getElementById('needsFollowUp').checked,
+    pushStatus:  'pending',
+  };
+
+  // Try push
+  if (webhook) {
+    const ok = await pushEntry(entry);
+    entry.pushStatus = ok ? 'ok' : 'failed';
+    if (ok)  showToast('✓ ' + id + ' gespeichert & gesendet','good');
+    else     showToast('⚠ Lokal gespeichert — Push fehlgeschlagen','warn');
+  } else {
+    entry.pushStatus = 'no_webhook';
+    showToast('💾 ' + id + ' lokal gespeichert','good');
+  }
+
+  assets.push(entry);
+  persist();
+  resetForm();
+  updateSyncBadge();
+  updateFailedCount();
+
+  btn.disabled = false; btn.classList.remove('saving');
+  btn.innerHTML = '<span>💾</span> Anlage speichern & senden';
+}
+
+async function pushEntry(entry) {
+  try {
+    const payload = {
+      assetId:      entry.assetId,
+      captor:       entry.captor,
+      timestamp:    entry.timestamp,
+      comment:      entry.comment,
+      inBenning:    entry.inBenning,
+      needsFollowUp:entry.needsFollowUp,
+      hasAudio:     !!entry.audio,
+      photoAsset:   entry.photoAsset  || '',
+      photoQR:      entry.photoQR     || '',
+      audioB64:     entry.audio       || '',
+    };
+    const res = await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function retryFailed() {
+  if (!webhook) { showToast('Kein Webhook konfiguriert','warn'); return; }
+  const failed = assets.filter(a => a.pushStatus === 'failed');
+  if (!failed.length) { showToast('Keine fehlgeschlagenen Einträge','good'); return; }
+  let ok = 0;
+  for (const entry of failed) {
+    const success = await pushEntry(entry);
+    if (success) { entry.pushStatus = 'ok'; ok++; }
+  }
+  persist();
+  updateFailedCount();
+  showToast(`${ok}/${failed.length} erneut gesendet`, ok === failed.length ? 'good' : 'warn');
+}
+
+// ── WEBHOOK SETUP ──────────────────────────
+function saveWebhook() {
+  webhook = document.getElementById('webhookUrl').value.trim();
+  localStorage.setItem('rb_webhook', webhook);
+  document.getElementById('setupBanner').classList.toggle('hidden', !!webhook);
+  showToast(webhook ? 'Webhook gespeichert ✓' : 'Webhook entfernt', 'good');
+}
+
+async function testWebhook() {
+  if (!webhook) { showToast('Erst URL eingeben','warn'); return; }
+  const res = await pushEntry({
+    assetId:'TEST', captor:'Verbindungstest', timestamp:new Date().toISOString(),
+    comment:'Testpush', inBenning:false, needsFollowUp:false,
+    audio:null, photoAsset:'', photoQR:'',
+  });
+  showToast(res ? '✓ Verbindung OK!' : '✗ Verbindung fehlgeschlagen', res?'good':'bad');
+}
+
+function saveName() {
+  captor = document.getElementById('captorName').value.trim();
+  localStorage.setItem('rb_captor', captor);
+  showToast('Name gespeichert ✓','good');
+}
+
+// ── LIST ───────────────────────────────────
+function renderList() {
+  const el = document.getElementById('assetList');
+  if (!assets.length) {
+    el.innerHTML = `<div class="empty"><div class="big">📭</div><p>Noch keine Anlagen erfasst.<br>Starte mit dem ➕ Tab.</p></div>`;
+    return;
+  }
+  el.innerHTML = [...assets].reverse().map(a => `
+    <div class="asset-card">
+      <div class="asset-card-head" onclick="toggleCard('${a.id}')">
+        <span class="asset-id">${esc(a.assetId)}</span>
+        <div class="badge-row">
+          ${a.pushStatus==='ok'    ? '<span class="badge b-green">✓ Gesendet</span>'  : ''}
+          ${a.pushStatus==='failed'? '<span class="badge b-red">✗ Push fehler</span>' : ''}
+          ${a.pushStatus==='no_webhook'? '<span class="badge b-gray">Lokal</span>'   : ''}
+          ${a.inBenning            ? '<span class="badge b-blue">Benning</span>'      : ''}
+          ${a.needsFollowUp        ? '<span class="badge b-amber">Nacharbeit</span>'  : ''}
+        </div>
+      </div>
+      <div class="asset-card-body" id="card-${a.id}">
+        <div class="thumb-row">
+          <div class="thumb">
+            ${a.photoAsset ? `<img src="${a.photoAsset}">` : '📷'}
+            <span class="thumb-lbl">Anlage</span>
+          </div>
+          <div class="thumb">
+            ${a.photoQR ? `<img src="${a.photoQR}">` : '🔲'}
+            <span class="thumb-lbl">QR/Schild</span>
+          </div>
+        </div>
+        ${a.comment ? `<p class="asset-note">💬 ${esc(a.comment)}</p>` : ''}
+        ${a.audio   ? `<audio controls src="${a.audio}" style="width:100%;margin-bottom:8px;"></audio>` : ''}
+        <p class="asset-meta-row">${new Date(a.timestamp).toLocaleString('de-DE')} · ${esc(a.captor||'—')}</p>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-del" onclick="deleteEntry('${a.id}')">Löschen</button>
+          ${a.pushStatus==='failed'?`<button class="btn-sm" onclick="retrySingle('${a.id}')">Erneut senden</button>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCard(id) {
+  document.getElementById('card-'+id).classList.toggle('open');
+}
+
+function deleteEntry(id) {
+  if (!confirm('Eintrag löschen?')) return;
+  assets = assets.filter(a => a.id !== id);
+  persist(); renderList(); updateSyncBadge(); updateFailedCount();
+}
+
+async function retrySingle(id) {
+  const entry = assets.find(a => a.id === id);
+  if (!entry) return;
+  const ok = await pushEntry(entry);
+  entry.pushStatus = ok ? 'ok' : 'failed';
+  persist(); renderList(); updateFailedCount();
+  showToast(ok ? '✓ Gesendet' : '✗ Push fehlgeschlagen', ok?'good':'bad');
+}
+
+// ── STATS ──────────────────────────────────
+function renderStats() {
+  const total   = assets.length;
+  const ok      = assets.filter(a => a.pushStatus==='ok').length;
+  const failed  = assets.filter(a => a.pushStatus==='failed').length;
+  const benning = assets.filter(a => a.inBenning).length;
+  const followup= assets.filter(a => a.needsFollowUp).length;
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">Gesamt</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${ok}</div><div class="stat-lbl">Gesendet ✓</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${benning}</div><div class="stat-lbl">In Benning</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${failed + followup}</div><div class="stat-lbl">Offen / Fehler</div></div>
+  `;
+}
+
+// ── EXPORT (local backup) ──────────────────
+function exportJSON() {
+  if (!assets.length) { showToast('Keine Daten','warn'); return; }
+  const ts = new Date().toISOString().slice(0,10);
+  dl(new Blob([JSON.stringify(assets,null,2)],{type:'application/json'}), `remberg_${ts}.json`);
+  showToast('JSON exportiert','good');
+}
+
+function exportCSV() {
+  if (!assets.length) { showToast('Keine Daten','warn'); return; }
+  const h = ['Anlagen-ID','Zeitstempel','Erfasser','Benning','Nacharbeit','Kommentar','Push-Status','Foto-Anlage','Foto-QR','Audio'];
+  const rows = assets.map(a => [
+    a.assetId, new Date(a.timestamp).toLocaleString('de-DE'), a.captor||'',
+    a.inBenning?'Ja':'Nein', a.needsFollowUp?'Ja':'Nein',
+    a.comment||'', a.pushStatus,
+    a.photoAsset?'vorhanden':'fehlt', a.photoQR?'vorhanden':'fehlt', a.audio?'vorhanden':'',
+  ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';'));
+  const csv = '\uFEFF' + [h.join(';'),...rows].join('\n');
+  const ts = new Date().toISOString().slice(0,10);
+  dl(new Blob([csv],{type:'text/csv;charset=utf-8;'}), `remberg_${ts}.csv`);
+  showToast('CSV exportiert','good');
+}
+
+function clearAll() {
+  if (!confirm('ACHTUNG: Alle lokalen Daten löschen?')) return;
+  assets = []; persist();
+  updateSyncBadge(); updateFailedCount(); renderStats();
+  showToast('Alle Daten gelöscht');
+}
+
+// ── HELPERS ────────────────────────────────
+function resetForm() {
+  document.getElementById('assetId').value  = '';
+  document.getElementById('comment').value  = '';
+  document.getElementById('inBenning').checked    = false;
+  document.getElementById('needsFollowUp').checked = false;
+  updateCardStyle();
+  clearPhoto('asset',{stopPropagation:()=>{},preventDefault:()=>{}});
+  clearPhoto('qr',   {stopPropagation:()=>{},preventDefault:()=>{}});
+  clearAudio();
+}
+
+function updateCardStyle() {
+  document.getElementById('cc-benning').className  = 'check-card' + (document.getElementById('inBenning').checked    ? ' checked-benning'  : '');
+  document.getElementById('cc-followup').className = 'check-card' + (document.getElementById('needsFollowUp').checked ? ' checked-followup' : '');
+}
+
+function updateSyncBadge() {
+  const el = document.getElementById('syncStatus');
+  const total  = assets.length;
+  const failed = assets.filter(a => a.pushStatus==='failed').length;
+  document.getElementById('syncLabel').textContent = `${total} erfasst`;
+  el.className = 'sync-status ' + (failed > 0 ? 'err' : total > 0 ? 'ok' : 'idle');
+}
+
+function updateFailedCount() {
+  const n = assets.filter(a => a.pushStatus==='failed').length;
+  const el = document.getElementById('failedCount');
+  if (el) el.textContent = n;
+}
+
+function persist() { localStorage.setItem('rb_assets', JSON.stringify(assets)); }
+
+function blobToB64(blob) {
+  return new Promise(res => { const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(blob); });
+}
+
+function dl(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
