@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Remberg Aufnahme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #f5f0e8;
+  --card:    #ffffff;
+  --border:  #e2d9cc;
+  --accent:  #d97706;
+  --acc-lt:  #fef3c7;
+  --acc-dk:  #b45309;
+  --green:   #16a34a;
+  --grn-lt:  #dcfce7;
+  --red:     #dc2626;
+  --text:    #1c1917;
+  --text-md: #57534e;
+  --text-sm: #a8a29e;
+  --r:       12px;
+  --shadow:  0 1px 4px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 18px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+header h1 { font-size: 19px; font-weight: 900; letter-spacing: -.01em; }
+header p  { font-size: 12px; font-weight: 600; color: var(--text-sm); margin-top: 1px; text-transform: uppercase; letter-spacing: .05em; }
+
+form { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+.lbl {
+  font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text-md); margin-bottom: 5px; display: block;
+}
+.req { color: var(--accent); }
+
+/* SELECT */
+select {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 700;
+  padding: 13px 15px;
+  outline: none;
+  box-shadow: var(--shadow);
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color .15s;
+}
+select:focus { border-color: var(--accent); }
+
+/* ID ROW */
+.id-row { display: flex; gap: 8px; align-items: flex-end; }
+.id-row > div:first-child { flex: 1; }
+
+/* TEXT INPUT */
+input[type="text"] {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: 'Fira Code', monospace;
+  font-size: 20px; font-weight: 700;
+  padding: 13px 15px;
+  outline: none;
+  box-shadow: var(--shadow);
+  -webkit-appearance: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+input[type="text"]::placeholder { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 500; color: var(--text-sm); }
+input[type="text"].suggested { border-color: var(--green); background: var(--grn-lt); }
+input[type="text"].manual    { border-color: var(--accent); }
+
+/* ID STATUS */
+.id-status {
+  font-size: 12px; font-weight: 700; margin-top: 5px;
+  min-height: 18px; color: var(--text-sm);
+  display: flex; align-items: center; gap: 5px;
+}
+.id-status.loading { color: var(--text-sm); }
+.id-status.ok      { color: var(--green); }
+.id-status.manual  { color: var(--accent); }
+
+/* REFRESH BTN */
+.btn-refresh {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 13px 14px;
+  font-size: 16px; cursor: pointer; box-shadow: var(--shadow);
+  transition: border-color .15s; flex-shrink: 0;
+  color: var(--text-md);
+}
+.btn-refresh:active { border-color: var(--accent); }
+.btn-refresh.spinning { animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* PHOTO PAIR */
+.photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.photo-slot {
+  position: relative; background: var(--card);
+  border: 1.5px dashed var(--border); border-radius: var(--r);
+  overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 1;
+  transition: border-color .15s;
+}
+.photo-slot.done { border-style: solid; border-color: var(--green); }
+.photo-slot input[type="file"] {
+  position: absolute; inset: 0; opacity: 0;
+  width: 100%; height: 100%; cursor: pointer; z-index: 2;
+}
+.ph-placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; pointer-events: none;
+}
+.ph-placeholder .ico { font-size: 30px; }
+.ph-placeholder .txt { font-size: 11px; font-weight: 700; color: var(--text-sm); text-align: center; line-height: 1.3; padding: 0 6px; }
+.photo-slot.done .ph-placeholder { display: none; }
+img.preview { display: none; width: 100%; height: 100%; object-fit: cover; }
+.photo-slot.done img.preview { display: block; }
+.ph-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,.85);
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .04em; text-align: center; padding: 4px;
+  color: var(--text-md); pointer-events: none; z-index: 1;
+}
+.ph-clear {
+  display: none; position: absolute; top: 6px; right: 6px;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 50%; width: 26px; height: 26px; font-size: 13px;
+  cursor: pointer; z-index: 3; box-shadow: var(--shadow);
+  color: var(--text-md); align-items: center; justify-content: center;
+}
+.photo-slot.done .ph-clear { display: flex; }
+
+/* COMMENT */
+input#comment { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 600; }
+
+/* CHECKBOXES */
+.check-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 14px 15px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; box-shadow: var(--shadow);
+  transition: background .15s, border-color .15s;
+}
+.check-card input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.ck-main { font-size: 14px; font-weight: 800; }
+.ck-sub  { font-size: 11px; font-weight: 600; color: var(--text-sm); }
+
+/* SEND BTN */
+button#sendBtn {
+  width: 100%; padding: 17px;
+  background: var(--accent); color: white;
+  border: none; border-radius: var(--r);
+  font-family: 'Nunito', sans-serif;
+  font-size: 17px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: .06em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(217,119,6,.35);
+  transition: opacity .15s, transform .1s; margin-top: 4px;
+}
+button#sendBtn:active { transform: scale(.98); opacity: .9; }
+button#sendBtn:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+
+/* RESULT OVERLAY */
+#result {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(245,240,232,.97);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px; text-align: center; padding: 32px;
+}
+#result.show { display: flex; }
+#result .big { font-size: 72px; }
+#result h2 { font-size: 22px; font-weight: 900; }
+#result p  { font-size: 14px; font-weight: 600; color: var(--text-md); line-height: 1.6; }
+#result button {
+  margin-top: 8px; padding: 14px 32px;
+  background: var(--accent); color: white;
+  border: none; border-radius: var(--r);
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: .05em;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(217,119,6,.3);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏪 Remberg Aufnahme</h1>
+  <p>Bäckerei Bubner · Anlagenerfassung</p>
+</header>
+
+<form id="captureForm" onsubmit="return false;">
+
+  <!-- FILIALE -->
+  <div>
+    <span class="lbl">Filiale <span class="req">*</span></span>
+    <select id="branch" onchange="onBranchChange()">
+      <option value="">— Filiale wählen —</option>
+      <option value="9035">9035 · Puschkinstraße (TG Edeka)</option>
+      <option value="9037">9037 · Röhrweg (TG Netto)</option>
+      <option value="9039">9039 · Turnierplatzweg (TG Kaufland)</option>
+      <option value="9042">9042 · Leipziger Straße (TG)</option>
+    </select>
+  </div>
+
+  <!-- ANLAGEN-ID -->
+  <div>
+    <span class="lbl">Anlagen-ID <span class="req">*</span></span>
+    <div class="id-row">
+      <div>
+        <input type="text" id="assetId"
+               placeholder="Filiale wählen …"
+               autocomplete="off" autocorrect="off"
+               autocapitalize="off" spellcheck="false"
+               oninput="onIdInput()">
+        <div class="id-status" id="idStatus"></div>
+      </div>
+      <button type="button" class="btn-refresh" id="refreshBtn"
+              onclick="fetchNextId()" title="Nächste ID neu laden">🔄</button>
+    </div>
+  </div>
+
+  <!-- FOTOS -->
+  <div>
+    <span class="lbl">Fotos <span class="req">*</span> — Anlage &amp; QR / Typenschild</span>
+    <div class="photo-pair">
+      <div class="photo-slot" id="wrap-asset">
+        <input type="file" accept="image/*" capture="environment"
+               onchange="handlePhoto('asset',this)">
+        <div class="ph-placeholder">
+          <span class="ico">📷</span>
+          <span class="txt">Anlage fotografieren</span>
+        </div>
+        <img class="preview" id="prev-asset" alt="">
+        <div class="ph-label">Anlage</div>
+        <button type="button" class="ph-clear" onclick="clearPhoto('asset',event)">✕</button>
+      </div>
+      <div class="photo-slot" id="wrap-qr">
+        <input type="file" accept="image/*" capture="environment"
+               onchange="handlePhoto('qr',this)">
+        <div class="ph-placeholder">
+          <span class="ico">🔲</span>
+          <span class="txt">QR / Typenschild</span>
+        </div>
+        <img class="preview" id="prev-qr" alt="">
+        <div class="ph-label">QR / Schild</div>
+        <button type="button" class="ph-clear" onclick="clearPhoto('qr',event)">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KOMMENTAR -->
+  <div>
+    <span class="lbl">Kommentar (optional)</span>
+    <input type="text" id="comment" placeholder="Auffälligkeiten, Zustand, …">
+  </div>
+
+  <!-- CHECKBOXEN -->
+  <label class="check-card">
+    <input type="checkbox" id="inBenning">
+    <div>
+      <div class="ck-main">⚡ In Benning erfasst</div>
+      <div class="ck-sub">Elektrische Prüfung angelegt</div>
+    </div>
+  </label>
+
+  <label class="check-card">
+    <input type="checkbox" id="needsFollowUp">
+    <div>
+      <div class="ck-main">🔔 Nacharbeit erforderlich</div>
+      <div class="ck-sub">Foto fehlt, Schild unleserlich, …</div>
+    </div>
+  </label>
+
+  <button type="button" id="sendBtn" onclick="send()">
+    Speichern &amp; Senden →
+  </button>
+
+</form>
+
+<div id="result">
+  <div class="big" id="resultIcon">✅</div>
+  <h2 id="resultTitle">Gesendet!</h2>
+  <p id="resultMsg"></p>
+  <button onclick="reset()">Nächste Anlage</button>
+</div>
+
+<script>
+// ── KONFIGURATION — einmalig von Julian setzen ───────────────
+const WEBHOOK = 'DEINE_WEBHOOK_URL_HIER';
+const CAPTOR  = ''; // optional: z.B. 'Max Muster'
+// ─────────────────────────────────────────────────────────────
+
+let photoAsset   = null;
+let photoQR      = null;
+let suggestedId  = null; // zuletzt vorgeschlagene ID
+
+// ── FILIALE → ID-Vorschlag ────────────────────────────────────
+async function onBranchChange() {
+  const branch = document.getElementById('branch').value;
+  const idInput = document.getElementById('assetId');
+  if (!branch) {
+    idInput.value = '';
+    idInput.placeholder = 'Filiale wählen …';
+    idInput.className = '';
+    setIdStatus('', '');
+    return;
+  }
+  idInput.placeholder = 'Wird geladen …';
+  await fetchNextId();
+}
+
+async function fetchNextId() {
+  const branch = document.getElementById('branch').value;
+  if (!branch) return;
+
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  setIdStatus('loading', '⏳ Nächste ID wird ermittelt …');
+
+  try {
+    // GET-Request: Apps Script gibt nächste freie ID zurück
+    const url = `${WEBHOOK}?action=nextId&branch=${branch}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.nextId) {
+      suggestedId = data.nextId;
+      const idInput = document.getElementById('assetId');
+      idInput.value = suggestedId;
+      idInput.className = 'suggested';
+      setIdStatus('ok', `✓ Vorschlag basierend auf ${data.count} vorhandenen Einträgen`);
+    } else {
+      throw new Error('Keine ID zurückgegeben');
+    }
+  } catch (err) {
+    suggestedId = null;
+    const idInput = document.getElementById('assetId');
+    idInput.value = '';
+    idInput.placeholder = `${branch}-001`;
+    idInput.className = '';
+    setIdStatus('manual', '⚠ Sheet nicht erreichbar — ID manuell eingeben');
+  }
+
+  btn.classList.remove('spinning');
+}
+
+function onIdInput() {
+  const idInput = document.getElementById('assetId');
+  const val = idInput.value.trim();
+  if (!val) {
+    idInput.className = '';
+    setIdStatus('', '');
+  } else if (val === suggestedId) {
+    idInput.className = 'suggested';
+    setIdStatus('ok', '✓ Vorgeschlagene ID');
+  } else {
+    idInput.className = 'manual';
+    setIdStatus('manual', '✎ Manuell überschrieben');
+  }
+}
+
+function setIdStatus(type, msg) {
+  const el = document.getElementById('idStatus');
+  el.textContent = msg;
+  el.className = 'id-status ' + type;
+}
+
+// ── FOTOS ─────────────────────────────────────────────────────
+function handlePhoto(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (type === 'asset') {
+      photoAsset = e.target.result;
+      document.getElementById('prev-asset').src = photoAsset;
+      document.getElementById('wrap-asset').classList.add('done');
+    } else {
+      photoQR = e.target.result;
+      document.getElementById('prev-qr').src = photoQR;
+      document.getElementById('wrap-qr').classList.add('done');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(type, e) {
+  e.stopPropagation(); e.preventDefault();
+  const id = type === 'asset' ? 'asset' : 'qr';
+  document.getElementById('prev-' + id).src = '';
+  document.getElementById('wrap-' + id).classList.remove('done');
+  document.getElementById('wrap-' + id).querySelector('input[type="file"]').value = '';
+  if (type === 'asset') photoAsset = null;
+  else                  photoQR    = null;
+}
+
+// ── SENDEN ────────────────────────────────────────────────────
+async function send() {
+  const branch  = document.getElementById('branch').value;
+  const assetId = document.getElementById('assetId').value.trim();
+
+  if (!branch)   { alert('Bitte Filiale wählen.'); return; }
+  if (!assetId)  { alert('Bitte Anlagen-ID eingeben.'); return; }
+  if (!photoAsset) { alert('Bitte Foto der Anlage aufnehmen.'); return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Wird gesendet …';
+
+  const payload = {
+    assetId,
+    branch,
+    captor:       CAPTOR || '',
+    timestamp:    new Date().toISOString(),
+    comment:      document.getElementById('comment').value.trim(),
+    inBenning:    document.getElementById('inBenning').checked,
+    needsFollowUp:document.getElementById('needsFollowUp').checked,
+    photoAsset:   photoAsset || '',
+    photoQR:      photoQR   || '',
+  };
+
+  let ok = false;
+  try {
+    await fetch(WEBHOOK, {
+      method:  'POST',
+      mode:    'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body:    JSON.stringify(payload),
+    });
+    ok = true;
+  } catch (err) {
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Speichern & Senden →';
+  showResult(ok, assetId);
+}
+
+function showResult(ok, id) {
+  document.getElementById('resultIcon').textContent  = ok ? '✅' : '⚠️';
+  document.getElementById('resultTitle').textContent = ok ? 'Gesendet!' : 'Fehler';
+  document.getElementById('resultMsg').textContent   = ok
+    ? `Anlage „${id}" wurde erfolgreich übertragen.`
+    : `Kein Netz — bitte Daten notieren und später erneut versuchen.`;
+  document.getElementById('result').classList.add('show');
+}
+
+function reset() {
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('branch').value  = '';
+  document.getElementById('assetId').value = '';
+  document.getElementById('assetId').className = '';
+  document.getElementById('assetId').placeholder = 'Filiale wählen …';
+  document.getElementById('comment').value = '';
+  document.getElementById('inBenning').checked     = false;
+  document.getElementById('needsFollowUp').checked = false;
+  setIdStatus('', '');
+  suggestedId = null;
+  clearPhoto('asset', { stopPropagation:()=>{}, preventDefault:()=>{} });
+  clearPhoto('qr',    { stopPropagation:()=>{}, preventDefault:()=>{} });
+}
+</script>
+</body>
+</html>
