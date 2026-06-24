@@ -192,18 +192,18 @@ button#cancelBtn:active{color:var(--text);}
   <!-- ═══════════ MODUS: ERFASSUNG ═══════════ -->
   <div class="mode-group active" id="group-erfassung">
 
-    <div class="section">Filiale &amp; ID</div>
+    <div class="section">Erfassungsort &amp; ID</div>
     <div>
-      <span class="lbl">Filiale <span class="req">*</span></span>
+      <span class="lbl">Erfassungsort <span class="req">*</span></span>
       <select id="branch" onchange="onBranchChange()">
-        <option value="">— Filiale wählen —</option>
+        <option value="">— Erfassungsort wählen —</option>
       </select>
     </div>
     <div>
       <span class="lbl">Anlagen-ID <span class="req">*</span></span>
       <div class="id-row">
         <div>
-          <input type="text" id="assetId" placeholder="Filiale wählen …"
+          <input type="text" id="assetId" placeholder="Erfassungsort wählen …"
                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                  oninput="onIdInput()">
           <div class="id-status" id="idStatus"></div>
@@ -249,13 +249,15 @@ button#cancelBtn:active{color:var(--text);}
     <div class="section">Standort / Verbleib</div>
     <div>
       <span class="lbl">Wo befindet sich die Anlage? <span class="req">*</span></span>
-      <div class="pill-toggle pill-3">
+      <div class="pill-toggle pill-2">
         <input type="radio" name="location" id="loc-site" value="Einsatzort" checked>
         <label for="loc-site"><span class="pl-main">📍 Einsatzort</span></label>
-        <input type="radio" name="location" id="loc-l1" value="Lager 1">
-        <label for="loc-l1"><span class="pl-main">📦 Lager 1</span></label>
-        <input type="radio" name="location" id="loc-l2" value="Lager 2">
-        <label for="loc-l2"><span class="pl-main">📦 Lager 2</span></label>
+        <input type="radio" name="location" id="loc-prod" value="Produktion">
+        <label for="loc-prod"><span class="pl-main">🏭 Produktion</span></label>
+        <input type="radio" name="location" id="loc-broda" value="Lager Broda">
+        <label for="loc-broda"><span class="pl-main">📦 Lager Broda</span></label>
+        <input type="radio" name="location" id="loc-mammitzsch" value="Lager Mammitzsch">
+        <label for="loc-mammitzsch"><span class="pl-main">📦 Lager Mammitzsch</span></label>
       </div>
     </div>
 
@@ -312,12 +314,14 @@ button#cancelBtn:active{color:var(--text);}
       <div class="id-status" id="moveStatus"></div>
     </div>
     <div>
-      <span class="lbl">Ziel-Lager <span class="req">*</span></span>
-      <div class="pill-toggle pill-2">
-        <input type="radio" name="moveTarget" id="move-l1" value="Lager 1">
-        <label for="move-l1"><span class="pl-main">📦 Lager 1</span></label>
-        <input type="radio" name="moveTarget" id="move-l2" value="Lager 2">
-        <label for="move-l2"><span class="pl-main">📦 Lager 2</span></label>
+      <span class="lbl">Ziel <span class="req">*</span></span>
+      <div class="pill-toggle pill-3">
+        <input type="radio" name="moveTarget" id="move-prod" value="Produktion">
+        <label for="move-prod"><span class="pl-main">🏭 Produktion</span></label>
+        <input type="radio" name="moveTarget" id="move-broda" value="Lager Broda">
+        <label for="move-broda"><span class="pl-main">📦 Broda</span></label>
+        <input type="radio" name="moveTarget" id="move-mammitzsch" value="Lager Mammitzsch">
+        <label for="move-mammitzsch"><span class="pl-main">📦 Mammitzsch</span></label>
       </div>
     </div>
     <div class="section">Foto <span class="req">*</span></div>
@@ -426,7 +430,7 @@ button#cancelBtn:active{color:var(--text);}
 
 <script>
 // ══════════ KONFIGURATION ══════════
-const WEBHOOK   = 'https://script.google.com/macros/s/AKfycbxikqQyHZ3PDFoMUGuDoCOqEGT1BRC3aPMTucPRDHSG_5qXewAFlnERwZorYUKwVCbrkg/exec';
+const WEBHOOK   = 'DEINE_WEBHOOK_URL_HIER';
 const DATA_DATE = '12.05.2026';
 
 // ══════════ EINGEBETTETE DATEN ══════════
@@ -459,6 +463,9 @@ const BRANCHES = [
   {c:"9037",n:"Röhrweg (TG Netto)",a:0,t:[]},
   {c:"9039",n:"Turnierplatzweg (TG Kaufland)",a:0,t:[]},
   {c:"9042",n:"Leipziger Straße (TG)",a:0,t:[]},
+  {c:"9900",n:"Produktion",a:0,t:[]},
+  {c:"9901",n:"Lager Broda",a:0,t:[]},
+  {c:"9902",n:"Lager Mammitzsch",a:0,t:[]},
 ];
 
 const TYPES = ["Ablufthaube","Adventsbeleuchtung","Aktenvernichter","Alarmanlage","Allesschneider","Anschlagmaschine","Antenne","Aprikotiermaschine","Aufarbeitungstisch","Ausrollmaschine","Backofen Filiale","Bainmarie","Beleuchtung","Bestreugerät","Bildschirm","Blechputzmaschine","Bockwurstwärmer","Boiler","Bondrucker","Brötchenanlage","Brotschneidemaschine","Brotwirkmaschine","Computer","Convotherm","Cremekocher","Deckenventilator","Display","Drucker","Drucker Tortenfotos","Durchlauferhitzer","EC-Gerät","EDV","Einschweißgerät","Eismaschine","Eistheke","Eiswürfelbereiter","Etagenofen","Etikettiergerät","Fahrzeuge","Faxgerät","Fettbackgerät","Feuerlöscher","Füllgerät","Gärvollautomat","Gastherme","Geldscheinprüfer","Geldzähler","Gemüseschleuder","Gemüseschneider","Getränkekühlschrank","Grill","Hebeanlage","Hebekipper","Heizgerät","Hochdruckreiniger","Höhrnchenwickelmaschine","IT 8fach Verteiler","Induktionskochfeld","Insektenfallen","Kaffeemaschine","Kaltgerätekabel","Kasse","Kippbratpfanne","Klimaanlage","Klingeltrafo","Kombidämpfer","Kompressor","Kraftverlängerungskabel","Kraftverteiler","Kraftverteiler mit Schukodosen","Kuchenbödenmühle","Kuchenschneider","Kühlschrank","Kühlschrank2","Kühltheke","Kühlung","Ladegeräte","Laminiergerät","Leiter","Lüfter","Mehrfachstecker","Messerwärmer","Mikrowelle","Milchkühler","Mobiltelefon","Mohnmühle","Monitor","Netzteil","Nudelkocher","Obstkühler","Pager","Pasteurisierer","Preisschilddrucker","Quarkbällchengerät","Radio","Regal","Rezeptursteuerung","Router","Sahnemaschine","Scanner","Schmierstation","Schneidegerät","Schokotopf","Schukoverteiler","Sicherungskasten","Siegelgerät","Smoothimaker","Speedofen","Spiralkneter","Spülmaschine","Stabmixer","Standventilator","Staubsauger","Steckd. Plätzchenregal","Stikkenofen","Suppentopf","Switch","TK Schrank","TK Truhe","Tassenwärmer","Teigteiler","Telefon","Temperaturüberwachung","Tischwaage","Toolbox","Trockner","Tütenaufblasgerät","Vakuimierer","Ventilator","Verlängerungskabel","Verpackungsmaschine","WLAN Repeater","Waage","Waffeleisen","Wandtresor","Waschautomat","Waschmaschine Elektrolux","Wasserenthärter","Wasserkocher","Wendelkneter","Zirkulationspumpe","Zweifachherd","iPad"];
@@ -478,8 +485,14 @@ let sheetCounterCache={};
 // ══════════ INIT ══════════
 (function init(){
   const sel=document.getElementById('branch');
-  BRANCHES.forEach(b=>{const o=document.createElement('option');o.value=b.c;
-    o.textContent=`${b.c} · ${b.n}${b.a?` (${b.a})`:''}`;sel.appendChild(o);});
+  const grpFil=document.createElement('optgroup');grpFil.label='Filialen';
+  const grpInt=document.createElement('optgroup');grpInt.label='Produktion / Lager';
+  BRANCHES.forEach(b=>{
+    const o=document.createElement('option');o.value=b.c;
+    o.textContent=`${b.c} · ${b.n}${b.a?` (${b.a})`:''}`;
+    (b.c.startsWith('99')?grpInt:grpFil).appendChild(o);
+  });
+  sel.appendChild(grpFil);sel.appendChild(grpInt);
   const dl=document.getElementById('typeList');
   TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;dl.appendChild(o);});
   // letzter Erfasser
@@ -487,8 +500,10 @@ let sheetCounterCache={};
   if(sc){['captor','captorMove','captorExit'].forEach(id=>{
     const s=document.getElementById(id);
     if([...s.options].some(o=>o.value===sc))s.value=sc;});}
+  const nFil=BRANCHES.filter(b=>!b.c.startsWith('99')).length;
+  const nInt=BRANCHES.filter(b=>b.c.startsWith('99')).length;
   document.getElementById('dataMeta').textContent=
-    `📊 Datenstand: ${DATA_DATE} · ${BRANCHES.length} Filialen · ${TYPES.length} Typen · ${VALID_IDS.size} IDs`;
+    `📊 Datenstand: ${DATA_DATE} · ${nFil} Filialen + ${nInt} interne Orte · ${TYPES.length} Typen · ${VALID_IDS.size} IDs`;
 })();
 
 // ══════════ MODUS ══════════
@@ -503,7 +518,15 @@ function setMode(mode){
 // ══════════ ERFASSUNG: ID-VORSCHLAG ══════════
 function onBranchChange(){
   const code=document.getElementById('branch').value;
-  if(!code){const i=document.getElementById('assetId');i.value='';i.placeholder='Filiale wählen …';i.className='';setIdStatus('','');return;}
+  if(!code){const i=document.getElementById('assetId');i.value='';i.placeholder='Erfassungsort wählen …';i.className='';setIdStatus('','');return;}
+  // Standort-Default smart setzen: bei Produktion/Lager den passenden Standort vorwählen
+  const b=BRANCHES.find(x=>x.c===code);
+  if(b&&code.startsWith('99')){
+    const map={'9900':'loc-prod','9901':'loc-broda','9902':'loc-mammitzsch'};
+    const target=document.getElementById(map[code]);if(target)target.checked=true;
+  }else{
+    document.getElementById('loc-site').checked=true;
+  }
   suggestNextId();
 }
 async function fetchSheetCounter(code){
@@ -688,7 +711,7 @@ async function sendEinlagern(){
   const target=document.querySelector('input[name="moveTarget"]:checked')?.value||'';
   const captor=document.getElementById('captorMove').value;
   if(!id){alert('Bitte Anlagen-ID eingeben.');return;}
-  if(!target){alert('Bitte Ziel-Lager wählen.');return;}
+  if(!target){alert('Bitte Ziel wählen.');return;}
   if(!photoMove){alert('Bitte Foto aufnehmen.');return;}
   if(captor)saveCaptor(captor,null);
   lockBtn(true);
