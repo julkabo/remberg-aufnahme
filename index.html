@@ -404,7 +404,7 @@ button#cancelBtn:active { color: var(--text); }
 
 <script>
 // ── KONFIGURATION — einmalig von Julian setzen ───────────────
-const WEBHOOK = 'https://script.google.com/macros/s/AKfycbzt6cwSTaveJOT_V7uFvre63Q7z6ABYVSsn9mpWOhE02qT-RmIbjP4pxbD8sQ3bSCDQEA/exec';
+const WEBHOOK = 'https://script.google.com/macros/s/AKfycbzfIo1-f1mF8CmDy6O8qfYabAX9K25M8ypzfahlvCEpFtC-KVyyEAudLh83I8sd4LErHA/exec';
 // ─────────────────────────────────────────────────────────────
 
 // Eingebettete Anlagentypen (synchron zur internen Version v5)
@@ -531,7 +531,7 @@ async function resizeImage(file) {
     i.src = dataUrl;
   });
 
-  const MAX = 1600;
+  const MAX = 1400;
   let { width, height } = img;
   if (width > MAX || height > MAX) {
     if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
@@ -543,7 +543,7 @@ async function resizeImage(file) {
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0, width, height);
-  return canvas.toDataURL('image/jpeg', 0.85);
+  return canvas.toDataURL('image/jpeg', 0.80);
 }
 
 async function handlePhoto(type, input) {
