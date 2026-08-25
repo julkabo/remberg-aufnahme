@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Remberg Aufnahme · INTERN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f0e8;--card:#fff;--card2:#faf7f2;--border:#e2d9cc;
+  --accent:#ab0000;--acc-lt:#fce8e8;--acc-dk:#7a0000;
+  --gold:#ffb200;--gold-lt:#fff4d6;
+  --green:#16a34a;--grn-lt:#dcfce7;--red:#dc2626;--red-lt:#fee2e2;
+  --blue:#2563eb;--blue-lt:#dbeafe;
+  --text:#1c1917;--text-md:#57534e;--text-sm:#a8a29e;
+  --r:12px;--shadow:0 1px 4px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;padding-bottom:40px;}
+
+header{background:var(--card);border-bottom:2px solid var(--accent);padding:12px 16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;}
+.logo{height:52px;width:auto;border-radius:6px;flex-shrink:0;}
+.h-right{display:flex;flex-direction:column;gap:4px;flex:1;}
+.h-right h1{font-size:17px;font-weight:900;letter-spacing:-.01em;color:var(--accent);}
+.h-badge{display:inline-block;background:var(--gold-lt);color:var(--acc-dk);font-size:10px;
+  font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;
+  letter-spacing:.06em;border:1px solid var(--gold);align-self:flex-start;}
+
+/* MODE SELECTOR */
+.mode-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px 16px 4px;}
+.mode-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:12px 6px;cursor:pointer;text-align:center;box-shadow:var(--shadow);
+  transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.mode-btn .m-ico{font-size:22px;}
+.mode-btn .m-lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--text-md);}
+.mode-btn.active{border-color:var(--accent);background:var(--acc-lt);}
+.mode-btn.active .m-lbl{color:var(--accent);}
+
+form{padding:12px 16px;display:flex;flex-direction:column;gap:14px;}
+
+.section{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-sm);padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:4px;}
+.section:first-child{margin-top:0;}
+
+.lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-md);margin-bottom:5px;display:block;}
+.req{color:var(--accent);}
+.opt{font-weight:600;color:var(--text-sm);text-transform:none;letter-spacing:0;}
+
+select,input[type="text"]{width:100%;background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;
+  font-weight:700;padding:12px 14px;outline:none;box-shadow:var(--shadow);-webkit-appearance:none;
+  appearance:none;transition:border-color .15s,box-shadow .15s;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+select:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(171,0,0,.10);}
+input[type="text"]::placeholder{font-size:14px;font-weight:500;color:var(--text-sm);}
+
+#assetId,#moveId,#exitId{font-family:'Fira Code',monospace;font-size:18px;font-weight:700;}
+.id-suggested{border-color:var(--green)!important;background:var(--grn-lt)!important;}
+.id-manual{border-color:var(--accent)!important;}
+.id-warning{border-color:var(--gold)!important;background:var(--gold-lt)!important;}
+.id-invalid{border-color:var(--red)!important;background:var(--red-lt)!important;}
+
+.id-row{display:flex;gap:8px;align-items:flex-end;}
+.id-row>div:first-child{flex:1;}
+.id-status{font-size:12px;font-weight:700;margin-top:5px;min-height:18px;color:var(--text-sm);}
+.id-status.ok{color:var(--green);}
+.id-status.manual{color:var(--accent);}
+.id-status.warn{color:var(--acc-dk);}
+.btn-refresh{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:11px 13px;font-size:15px;cursor:pointer;box-shadow:var(--shadow);flex-shrink:0;color:var(--text-md);}
+.btn-refresh:active{border-color:var(--accent);}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* PILL TOGGLE */
+.pill-toggle{display:grid;gap:8px;background:var(--card2);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:4px;box-shadow:var(--shadow);}
+.pill-2{grid-template-columns:1fr 1fr;}
+.pill-3{grid-template-columns:1fr 1fr 1fr;}
+.pill-toggle input[type="radio"]{display:none;}
+.pill-toggle label{display:flex;flex-direction:column;gap:2px;padding:9px 8px;border-radius:8px;
+  cursor:pointer;text-align:center;transition:background .15s,color .15s;color:var(--text-md);}
+.pill-toggle label .pl-main{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;}
+.pill-toggle label .pl-sub{font-size:10px;font-weight:600;color:var(--text-sm);}
+.pill-toggle input[type="radio"]:checked+label{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(171,0,0,.25);}
+.pill-toggle input[type="radio"]:checked+label .pl-sub{color:rgba(255,255,255,.85);}
+
+/* PHOTO */
+.photo-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.photo-single{display:grid;grid-template-columns:1fr;}
+.photo-slot{position:relative;background:var(--card);border:1.5px dashed var(--border);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);aspect-ratio:1;transition:border-color .15s;}
+.photo-slot.wide{aspect-ratio:2.2;}
+.photo-slot.done{border-style:solid;border-color:var(--green);}
+.photo-slot input[type="file"]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2;}
+.ph-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;pointer-events:none;}
+.ph-placeholder .ico{font-size:26px;}
+.ph-placeholder .txt{font-size:11px;font-weight:700;color:var(--text-sm);text-align:center;line-height:1.3;padding:0 6px;}
+.photo-slot.done .ph-placeholder{display:none;}
+img.preview{display:none;width:100%;height:100%;object-fit:cover;}
+.photo-slot.done img.preview{display:block;}
+.ph-label{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.85);font-size:10px;
+  font-weight:800;text-transform:uppercase;letter-spacing:.04em;text-align:center;padding:3px;color:var(--text-md);pointer-events:none;z-index:1;}
+.ph-clear{display:none;position:absolute;top:5px;right:5px;background:#fff;border:1.5px solid var(--border);
+  border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;z-index:3;box-shadow:var(--shadow);
+  color:var(--text-md);align-items:center;justify-content:center;}
+.photo-slot.done .ph-clear{display:flex;}
+
+input.text-normal{font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;}
+
+.check-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);}
+.check-card input[type="checkbox"]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.ck-main{font-size:13px;font-weight:800;}
+.ck-sub{font-size:11px;font-weight:600;color:var(--text-sm);}
+
+.hint-box{background:var(--gold-lt);border:1.5px solid var(--gold);border-radius:var(--r);
+  padding:10px 13px;font-size:12.5px;font-weight:600;color:var(--acc-dk);display:none;}
+.hint-box.show{display:block;}
+
+button#sendBtn{width:100%;padding:16px;background:var(--accent);color:#fff;border:none;
+  border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.06em;cursor:pointer;box-shadow:0 4px 16px rgba(171,0,0,.35);
+  transition:opacity .15s,transform .1s;}
+button#sendBtn:active{transform:scale(.98);opacity:.9;}
+button#sendBtn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+button#cancelBtn{background:none;border:none;color:var(--text-md);font-family:'Nunito',sans-serif;
+  font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:12px;
+  margin-top:-4px;cursor:pointer;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px;}
+button#cancelBtn:active{color:var(--text);}
+
+.data-meta{font-size:11px;color:var(--text-sm);text-align:center;padding:12px 0 0;font-weight:600;}
+
+#result{display:none;position:fixed;inset:0;z-index:200;background:rgba(245,240,232,.97);
+  align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:32px;}
+#result.show{display:flex;}
+#result .big{font-size:64px;}
+#result h2{font-size:22px;font-weight:900;}
+#result p{font-size:14px;font-weight:600;color:var(--text-md);line-height:1.6;}
+#result button{margin-top:8px;padding:14px 32px;background:var(--accent);color:#fff;border:none;
+  border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.05em;cursor:pointer;box-shadow:0 4px 14px rgba(171,0,0,.3);}
+
+.overlay-confirm{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);
+  align-items:center;justify-content:center;padding:24px;}
+.overlay-confirm.show{display:flex;}
+.overlay-card{background:var(--card);border-radius:var(--r);padding:24px 20px;max-width:340px;
+  width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.3);}
+.oc-icon{font-size:40px;margin-bottom:8px;}
+.overlay-card h3{font-size:18px;font-weight:900;margin-bottom:6px;}
+.overlay-card p{font-size:13px;color:var(--text-md);margin-bottom:18px;line-height:1.5;}
+.oc-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.oc-btn{padding:12px;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;
+  font-weight:800;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;}
+.oc-cancel{background:var(--card2);border:1.5px solid var(--border);color:var(--text-md);}
+.oc-confirm{background:var(--accent);border:none;color:#fff;}
+
+.mode-group{display:none;}
+.mode-group.active{display:flex;flex-direction:column;gap:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="data:image/jpeg;base64,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" alt="Bubner" class="logo">
+  <div class="h-right">
+    <h1>Remberg Aufnahme</h1>
+    <span class="h-badge">INTERN</span>
+  </div>
+</header>
+
+<!-- MODUS-AUSWAHL -->
+<div class="mode-bar">
+  <div class="mode-btn active" id="mode-erfassung" onclick="setMode('erfassung')">
+    <span class="m-ico">🆕</span><span class="m-lbl">Erfassung</span>
+  </div>
+  <div class="mode-btn" id="mode-einlagern" onclick="setMode('einlagern')">
+    <span class="m-ico">📦</span><span class="m-lbl">Einlagern</span>
+  </div>
+  <div class="mode-btn" id="mode-abgang" onclick="setMode('abgang')">
+    <span class="m-ico">🗑️</span><span class="m-lbl">Abgang</span>
+  </div>
+</div>
+
+<form id="captureForm" onsubmit="return false;">
+
+  <!-- ═══════════ MODUS: ERFASSUNG ═══════════ -->
+  <div class="mode-group active" id="group-erfassung">
+
+    <div class="section">Erfassungsort &amp; ID</div>
+    <div>
+      <span class="lbl">Erfassungsort <span class="req">*</span></span>
+      <select id="branch" onchange="onBranchChange()">
+        <option value="">— Erfassungsort wählen —</option>
+      </select>
+    </div>
+    <div>
+      <span class="lbl">Anlagen-ID <span class="req">*</span></span>
+      <div class="id-row">
+        <div>
+          <input type="text" id="assetId" placeholder="Erfassungsort wählen …"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                 oninput="onIdInput()">
+          <div class="id-status" id="idStatus"></div>
+        </div>
+        <button type="button" class="btn-refresh" onclick="suggestNextId()" title="Nächste ID">🔄</button>
+      </div>
+    </div>
+
+    <div class="section">Anlage</div>
+    <div>
+      <span class="lbl">Status <span class="req">*</span></span>
+      <div class="pill-toggle pill-2">
+        <input type="radio" name="assetStatus" id="status-new" value="neu">
+        <label for="status-new"><span class="pl-main">🆕 Neuanlage</span><span class="pl-sub">Noch nicht in Remberg</span></label>
+        <input type="radio" name="assetStatus" id="status-existing" value="bestand">
+        <label for="status-existing"><span class="pl-main">📋 Bestand</span><span class="pl-sub">In Remberg vorhanden</span></label>
+      </div>
+    </div>
+    <div>
+      <span class="lbl">Anlagentyp <span class="req">*</span></span>
+      <input type="text" id="assetType" list="typeList"
+             placeholder="z.B. Backofen Filiale (zum Filtern tippen)"
+             autocomplete="off" autocapitalize="off" oninput="onTypeChange()">
+      <datalist id="typeList"></datalist>
+    </div>
+
+    <div id="hlsBlock" style="display:none;">
+      <div class="two-col">
+        <div>
+          <span class="lbl" id="lbl-manufacturer">Hersteller <span class="req">*</span></span>
+          <input type="text" id="manufacturer" class="text-normal" placeholder="z.B. MIWE">
+        </div>
+        <div>
+          <span class="lbl" id="lbl-serial">Seriennr. <span class="req">*</span></span>
+          <input type="text" id="serialNo" class="text-normal" placeholder="Typenschild">
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <span class="lbl" id="lbl-supplier">Lieferant <span class="req">*</span></span>
+        <input type="text" id="supplier" class="text-normal" placeholder="z.B. WMF, Dussmann">
+      </div>
+      <div class="hint-box show" id="reqHint" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="section">Standort / Verbleib</div>
+    <div>
+      <span class="lbl">Wo befindet sich die Anlage? <span class="req">*</span></span>
+      <div class="pill-toggle pill-2">
+        <input type="radio" name="location" id="loc-site" value="Einsatzort" checked>
+        <label for="loc-site"><span class="pl-main">📍 Einsatzort</span></label>
+        <input type="radio" name="location" id="loc-prod" value="Produktion">
+        <label for="loc-prod"><span class="pl-main">🏭 Produktion</span></label>
+        <input type="radio" name="location" id="loc-broda" value="Lager Broda">
+        <label for="loc-broda"><span class="pl-main">📦 Lager Broda</span></label>
+        <input type="radio" name="location" id="loc-mammitzsch" value="Lager Mammitzsch">
+        <label for="loc-mammitzsch"><span class="pl-main">📦 Lager Mammitzsch</span></label>
+      </div>
+    </div>
+
+    <div class="section">Fotos <span class="req">*</span></div>
+    <div class="photo-pair">
+      <div class="photo-slot" id="wrap-asset">
+        <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('asset',this)">
+        <div class="ph-placeholder"><span class="ico">📷</span><span class="txt">Anlage</span></div>
+        <img class="preview" id="prev-asset" alt=""><div class="ph-label">Anlage</div>
+        <button type="button" class="ph-clear" onclick="clearPhoto('asset',event)">✕</button>
+      </div>
+      <div class="photo-slot" id="wrap-qr">
+        <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('qr',this)">
+        <div class="ph-placeholder"><span class="ico">🔲</span><span class="txt">QR / Typenschild</span></div>
+        <img class="preview" id="prev-qr" alt=""><div class="ph-label">QR / Schild</div>
+        <button type="button" class="ph-clear" onclick="clearPhoto('qr',event)">✕</button>
+      </div>
+    </div>
+
+    <div class="section">Zusatz</div>
+    <div>
+      <span class="lbl">Erfasser <span class="opt">opt.</span></span>
+      <select id="captor">
+        <option value="">— wählen —</option>
+        <option value="Jörg">Jörg</option>
+        <option value="Patrick">Patrick</option>
+        <option value="Oliver">Oliver</option>
+        <option value="Julian">Julian</option>
+        <option value="Sonstige">Sonstige</option>
+      </select>
+    </div>
+    <div>
+      <span class="lbl">Kommentar <span class="opt">opt.</span></span>
+      <input type="text" id="comment" class="text-normal" placeholder="Auffälligkeiten, Zustand, …">
+    </div>
+    <label class="check-card">
+      <input type="checkbox" id="inBenning">
+      <div><div class="ck-main">⚡ In Benning erfasst</div><div class="ck-sub">Parallel oder bereits vorhanden</div></div>
+    </label>
+    <label class="check-card">
+      <input type="checkbox" id="needsFollowUp">
+      <div><div class="ck-main">🔔 Nacharbeit erforderlich</div><div class="ck-sub">Foto fehlt, Schild unleserlich, …</div></div>
+    </label>
+  </div>
+
+  <!-- ═══════════ MODUS: EINLAGERN ═══════════ -->
+  <div class="mode-group" id="group-einlagern">
+    <div class="section">Anlage einlagern</div>
+    <div>
+      <span class="lbl">Anlagen-ID <span class="req">*</span></span>
+      <input type="text" id="moveId" placeholder="z.B. 9035-001"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+             oninput="onLookupId('move')">
+      <div class="id-status" id="moveStatus"></div>
+    </div>
+    <div>
+      <span class="lbl">Ziel <span class="req">*</span></span>
+      <div class="pill-toggle pill-3">
+        <input type="radio" name="moveTarget" id="move-prod" value="Produktion">
+        <label for="move-prod"><span class="pl-main">🏭 Produktion</span></label>
+        <input type="radio" name="moveTarget" id="move-broda" value="Lager Broda">
+        <label for="move-broda"><span class="pl-main">📦 Broda</span></label>
+        <input type="radio" name="moveTarget" id="move-mammitzsch" value="Lager Mammitzsch">
+        <label for="move-mammitzsch"><span class="pl-main">📦 Mammitzsch</span></label>
+      </div>
+    </div>
+    <div class="section">Foto <span class="req">*</span></div>
+    <div class="photo-single">
+      <div class="photo-slot wide" id="wrap-move">
+        <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('move',this)">
+        <div class="ph-placeholder"><span class="ico">📷</span><span class="txt">Foto der eingelagerten Anlage</span></div>
+        <img class="preview" id="prev-move" alt=""><div class="ph-label">Einlagerung</div>
+        <button type="button" class="ph-clear" onclick="clearPhoto('move',event)">✕</button>
+      </div>
+    </div>
+    <div class="section">Zusatz</div>
+    <div>
+      <span class="lbl">Erfasser <span class="opt">opt.</span></span>
+      <select id="captorMove">
+        <option value="">— wählen —</option>
+        <option value="Jörg">Jörg</option><option value="Patrick">Patrick</option>
+        <option value="Oliver">Oliver</option><option value="Julian">Julian</option>
+        <option value="Sonstige">Sonstige</option>
+      </select>
+    </div>
+    <div>
+      <span class="lbl">Kommentar <span class="opt">opt.</span></span>
+      <input type="text" id="commentMove" class="text-normal" placeholder="z.B. Grund der Einlagerung">
+    </div>
+  </div>
+
+  <!-- ═══════════ MODUS: ABGANG ═══════════ -->
+  <div class="mode-group" id="group-abgang">
+    <div class="section">Anlagen-Abgang</div>
+    <div>
+      <span class="lbl">Anlagen-ID <span class="req">*</span></span>
+      <input type="text" id="exitId" placeholder="z.B. 9035-001"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+             oninput="onLookupId('exit')">
+      <div class="id-status" id="exitStatus"></div>
+    </div>
+    <div>
+      <span class="lbl">Abgangsart <span class="req">*</span></span>
+      <div class="pill-toggle pill-2" style="margin-bottom:8px;">
+        <input type="radio" name="exitType" id="exit-verkauf" value="Verkauf" onchange="onExitTypeChange()">
+        <label for="exit-verkauf"><span class="pl-main">💶 Verkauf</span></label>
+        <input type="radio" name="exitType" id="exit-verschrott" value="Verschrottung" onchange="onExitTypeChange()">
+        <label for="exit-verschrott"><span class="pl-main">🗑️ Verschrottung</span></label>
+      </div>
+      <div class="pill-toggle pill-2">
+        <input type="radio" name="exitType" id="exit-sperr" value="Sperrmüll" onchange="onExitTypeChange()">
+        <label for="exit-sperr"><span class="pl-main">🛻 Sperrmüll</span></label>
+        <input type="radio" name="exitType" id="exit-sonst" value="Sonstiges" onchange="onExitTypeChange()">
+        <label for="exit-sonst"><span class="pl-main">❓ Sonstiges</span></label>
+      </div>
+    </div>
+    <div class="hint-box" id="exitHint"></div>
+    <div id="exitOtherWrap" style="display:none;">
+      <span class="lbl">Beschreibung <span class="req">*</span></span>
+      <input type="text" id="exitOther" class="text-normal" placeholder="Was ist mit der Anlage passiert?">
+    </div>
+    <div class="section">Foto <span class="req">*</span></div>
+    <div class="photo-single">
+      <div class="photo-slot wide" id="wrap-exit">
+        <input type="file" accept="image/*" capture="environment" onchange="handlePhoto('exit',this)">
+        <div class="ph-placeholder"><span class="ico">📷</span><span class="txt">Beweisfoto des Abgangs</span></div>
+        <img class="preview" id="prev-exit" alt=""><div class="ph-label">Abgang</div>
+        <button type="button" class="ph-clear" onclick="clearPhoto('exit',event)">✕</button>
+      </div>
+    </div>
+    <div class="section">Zusatz</div>
+    <div>
+      <span class="lbl">Erfasser <span class="opt">opt.</span></span>
+      <select id="captorExit">
+        <option value="">— wählen —</option>
+        <option value="Jörg">Jörg</option><option value="Patrick">Patrick</option>
+        <option value="Oliver">Oliver</option><option value="Julian">Julian</option>
+        <option value="Sonstige">Sonstige</option>
+      </select>
+    </div>
+    <div>
+      <span class="lbl">Kommentar <span class="opt">opt.</span></span>
+      <input type="text" id="commentExit" class="text-normal" placeholder="Belegnummer, Käufer, …">
+    </div>
+  </div>
+
+  <button type="button" id="sendBtn" onclick="send()">Speichern &amp; Senden →</button>
+  <button type="button" id="cancelBtn" onclick="cancelEntry()">Eingaben verwerfen</button>
+  <div class="data-meta" id="dataMeta"></div>
+</form>
+
+<div id="result">
+  <div class="big" id="resultIcon">✅</div>
+  <h2 id="resultTitle">Gesendet!</h2>
+  <p id="resultMsg"></p>
+  <button onclick="resetAfterSend()">Weiter</button>
+</div>
+
+<div id="confirmOverlay" class="overlay-confirm">
+  <div class="overlay-card">
+    <div class="oc-icon">⚠️</div>
+    <h3>Eingaben verwerfen?</h3>
+    <p>Alle aktuellen Eingaben gehen verloren.</p>
+    <div class="oc-actions">
+      <button class="oc-btn oc-cancel" onclick="confirmAction(false)">Abbrechen</button>
+      <button class="oc-btn oc-confirm" onclick="confirmAction(true)">Verwerfen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════ KONFIGURATION ══════════
+const WEBHOOK   = 'https://script.google.com/macros/s/AKfycbzfIo1-f1mF8CmDy6O8qfYabAX9K25M8ypzfahlvCEpFtC-KVyyEAudLh83I8sd4LErHA/exec';
+const DATA_DATE = '12.05.2026';
+
+// ══════════ EINGEBETTETE DATEN ══════════
+const BRANCHES = [
+  {c:"9002",n:"Fiwa Süd",a:69,t:[1,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19]},
+  {c:"9003",n:"Fiwa Edeka",a:48,t:[1,2,3,4,5,6,7,8,9,10,11,12]},
+  {c:"9005",n:"Fiwa Markt",a:122,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]},
+  {c:"9006",n:"Sowa Markt",a:80,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},
+  {c:"9007",n:"Herzb. Penny",a:36,t:[1]},
+  {c:"9008",n:"Falkenberg Uebigauer",a:37,t:[1,2]},
+  {c:"9009",n:"Eda Rewe",a:68,t:[]},
+  {c:"9010",n:"L'au Ehm-W.",a:110,t:[]},
+  {c:"9011",n:"Falkenberg Netto",a:39,t:[]},
+  {c:"9012",n:"Fiwa Nord",a:105,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36]},
+  {c:"9014",n:"Ba Li Rossmarkt",a:68,t:[]},
+  {c:"9015",n:"Großrä Rudolf-B",a:89,t:[]},
+  {c:"9017",n:"Calau Cottbuser",a:130,t:[1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]},
+  {c:"9018",n:"Kirchh. Markt",a:115,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33]},
+  {c:"9019",n:"Luckau",a:73,t:[]},
+  {c:"9022",n:"Schwarzheide Rewe",a:61,t:[]},
+  {c:"9023",n:"Herzb. Zentrum",a:84,t:[]},
+  {c:"9024",n:"Lübben",a:61,t:[]},
+  {c:"9025",n:"Cottbus Rosenstraße",a:39,t:[]},
+  {c:"9026",n:"Kirchh. Edeka",a:45,t:[1,2,3,4,5,6,7,8,9,10,11,12,13]},
+  {c:"9027",n:"Jüterbog Markt",a:60,t:[]},
+  {c:"9028",n:"Luckenwalde",a:64,t:[]},
+  {c:"9031",n:"Sfb Rewe",a:31,t:[]},
+  {c:"9032",n:"Ba Li Rewe",a:3,t:[]},
+  {c:"9033",n:"Jessen",a:47,t:[1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48]},
+  {c:"9034",n:"Luckenwalde Netto",a:40,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]},
+  {c:"9035",n:"Puschkinstraße (TG Edeka)",a:0,t:[]},
+  {c:"9037",n:"Röhrweg (TG Netto)",a:0,t:[]},
+  {c:"9039",n:"Turnierplatzweg (TG Kaufland)",a:0,t:[]},
+  {c:"9042",n:"Leipziger Straße (TG)",a:0,t:[]},
+  {c:"9900",n:"Produktion",a:0,t:[]},
+  {c:"9901",n:"Lager Broda",a:0,t:[]},
+  {c:"9902",n:"Lager Mammitzsch",a:0,t:[]},
+];
+
+const TYPES = ["Ablufthaube","Adventsbeleuchtung","Aktenvernichter","Alarmanlage","Allesschneider","Anschlagmaschine","Antenne","Aprikotiermaschine","Aufarbeitungstisch","Ausrollmaschine","Backofen Filiale","Bainmarie","Beleuchtung","Bestreugerät","Bildschirm","Blechputzmaschine","Bockwurstwärmer","Boiler","Bondrucker","Brötchenanlage","Brotschneidemaschine","Brotwirkmaschine","Computer","Convotherm","Cremekocher","Deckenventilator","Display","Drucker","Drucker Tortenfotos","Durchlauferhitzer","EC-Gerät","EDV","Einschweißgerät","Eismaschine","Eistheke","Eiswürfelbereiter","Etagenofen","Etikettiergerät","Fahrzeuge","Faxgerät","Fettbackgerät","Feuerlöscher","Füllgerät","Gärvollautomat","Gastherme","Geldscheinprüfer","Geldzähler","Gemüseschleuder","Gemüseschneider","Getränkekühlschrank","Grill","Hebeanlage","Hebekipper","Heizgerät","Hochdruckreiniger","Höhrnchenwickelmaschine","IT 8fach Verteiler","Induktionskochfeld","Insektenfallen","Kaffeemaschine","Kaltgerätekabel","Kasse","Kippbratpfanne","Klimaanlage","Klingeltrafo","Kombidämpfer","Kompressor","Kraftverlängerungskabel","Kraftverteiler","Kraftverteiler mit Schukodosen","Kuchenbödenmühle","Kuchenschneider","Kühlschrank","Kühlschrank2","Kühltheke","Kühlung","Ladegeräte","Laminiergerät","Leiter","Lüfter","Mehrfachstecker","Messerwärmer","Mikrowelle","Milchkühler","Mobiltelefon","Mohnmühle","Monitor","Netzteil","Nudelkocher","Obstkühler","Pager","Pasteurisierer","Preisschilddrucker","Quarkbällchengerät","Radio","Regal","Rezeptursteuerung","Router","Sahnemaschine","Scanner","Schmierstation","Schneidegerät","Schokotopf","Schukoverteiler","Sicherungskasten","Siegelgerät","Smoothimaker","Speedofen","Spiralkneter","Spülmaschine","Stabmixer","Standventilator","Staubsauger","Steckd. Plätzchenregal","Stikkenofen","Suppentopf","Switch","TK Schrank","TK Truhe","Tassenwärmer","Teigteiler","Telefon","Temperaturüberwachung","Tischwaage","Toolbox","Trockner","Tütenaufblasgerät","Vakuimierer","Ventilator","Verlängerungskabel","Verpackungsmaschine","WLAN Repeater","Waage","Waffeleisen","Wandtresor","Waschautomat","Waschmaschine Elektrolux","Wasserenthärter","Wasserkocher","Wendelkneter","Zirkulationspumpe","Zweifachherd","iPad"];
+
+// TYPE_FIELDS: Anlagentypen, für die Hersteller/Lieferant/Seriennummer erfasst werden.
+// Nicht gelistete Typen zeigen die Felder nicht an. s=true → Seriennummer verpflichtend.
+const TYPE_FIELDS = {"001Sammeltyp":{"s":false},"Anschlagmaschine":{"s":false},"Aprikotiermaschine":{"s":false},"Ausrollmaschine":{"s":false},"Backofen Filiale":{"s":true},"Bestreugerät":{"s":false},"Brötchenanlage":{"s":true},"Brotschneidemaschine":{"s":false},"Brotwirkmaschine":{"s":false},"Computer":{"s":false},"Convotherm":{"s":false},"Eismaschine":{"s":false},"Etagenofen":{"s":true},"Fahrzeuge":{"s":false},"Gärvollautomat":{"s":false},"Getränkekühlschrank":{"s":false},"Hebeanlage":{"s":false},"Hebekipper":{"s":false},"Höhrnchenwickelmaschine":{"s":false},"Kaffeemaschine":{"s":false},"Kippbratpfanne":{"s":false},"Klimaanlage":{"s":false},"Kühlschrank":{"s":true},"Kühlschrank2":{"s":true},"Kühltheke":{"s":false},"Kühlung":{"s":false},"Mohnmühle":{"s":false},"Quarkbällchengerät":{"s":false},"Rezeptursteuerung":{"s":false},"Sahnemaschine":{"s":false},"Schmierstation":{"s":false},"Speedofen":{"s":true},"Spiralkneter":{"s":false},"Spülmaschine":{"s":true},"Stikkenofen":{"s":true},"TK Schrank":{"s":true},"TK Truhe":{"s":true},"Waschautomat":{"s":false},"Wendelkneter":{"s":false}};
+
+const VALID_IDS = new Set(["00002","00003","00004","00005","00006","00007","00008","00009","00010","00011","00013","00014","00015","00016","00017","00018","00019","00020","00021","00022","00023","00024","00025","00026","00027","00028","00029","00030","00031","00032","00033","00034","00035","00036","00037","00039","00040","00041","00042","00043","00044","00045","00046","00047","00048","00049","00050","00051","00052","00053","00054","00055","00056","00057","00058","00059","00060","00061","00062","00063","00064","00065","00072","00073","00074","00075","00076","00077","00078","00079","00080","00081","00082","00083","00084","00085","00086","00087","00088","00089","00090","00091","00092","00093","00094","00095","00096","00097","00098","00099","00100","00101","00102","00103","00104","00105","00106","00107","00108","00109","00110","00111","00112","00113","00114","00115","00116","00117","00119","00122","00124","00132","00133","00134","00135","00136","00137","00138","00139","00140","00141","00142","00143","00144","00145","00146","00147","00148","00149","00150","00151","00152","00153","00154","00155","00156","00157","00158","00159","00160","00161","00162","00163","00164","00165","00166","00167","00168","00169","00170","00171","00172","00173","00174","00175","00176","00177","00178","00179","00180","00181","00182","00183","00184","00185","00186","00187","00188","00189","00190","00191","00192","00193","00194","00195","00196","00197","00198","00199","00200","00201","00202","00203","00204","00205","00206","00207","00208","00209","00210","00211","00212","00213","00214","00215","00216","00217","00218","00219","00220","00221","00222","00223","00224","00225","00226","00227","00228","00229","00230","00231","00232","00233","00234","00235","00237","00238","00239","00240","00241","00242","00243","00244","00245","00246","00247","00248","00250","00251","00252","00253","00254","00255","00256","00257","00258","00259","00260","00261","00262","00263","00264","00265","00266","00267","00268","00269","00270","00271","00272","00273","00274","00275","00276","00277","00278","00279","00280","00281","00282","00283","00284","00285","00286","00287","00288","00289","00290","00291","00292","00293","00294","00295","00296","00297","00298","00299","00300","00301","00302","00303","00304","00305","00306","00307","00308","00309","00310","00311","00312","00313","00314","00315","00316","00317","00318","00319","00320","00321","00322","00323","00324","00326","00327","00328","00329","00330","00331","00332","00333","00334","00335","00336","00337","00338","00339","00340","00341","00342","00343","00344","00345","00346","00347","00348","00349","00350","00351","00352","00353","00354","00355","00356","00359","00360","00361","00362","00363","00364","00365","00366","00367","00368","00369","00370","00371","00372","00373","00374","00375","00376","00377","00378","00379","00380","00381","00382","00383","00384","00385","00386","00387","00388","00389","00390","00391","00392","00393","00394","00395","00396","00397","00398","00399","00400","00401","00402","00403","00404","00405","00406","00407","00408","00409","00410","00411","00412","00413","00414","00415","00416","00417","00418","00419","00420","00421","00422","00423","00424","00425","00426","00427","00428","00429","00430","00431","00432","00433","00434","00435","00436","00437","00438","00439","00440","00441","00442","00443","00444","00445","00446","00447","00448","00449","00450","00451","00452","00453","00454","00455","00456","00457","00458","00459","00460","00461","00462","00463","00464","00465","00466","00467","00468","00469","00470","00471","00472","00473","00474","00475","00476","00477","00478","00479","00480","00481","00482","00483","00485","00486","00487","00488","00489","00490","00492","00493","00494","00495","00496","00497","00498","00499","00500","00501","00502","00503","00504","00505","00506","00507","00508","00509","00510","00511","00512","00513","00514","00515","00516","00517","00518","00519","00520","00521","00522","00523","00524","00525","00526","00527","00528","00529","00530","00531","00532","00533","00534","00535","00536","00537","00538","00539","00540","00541","00542","00543","00545","00546","00547","00548","00549","00550","00551","00552","00553","00554","00555","00556","00557","00558","00559","00560","00561","00562","00563","00564","00565","00566","00567","00568","00569","00570","00571","00572","00573","00574","00575","00576","00577","00578","00579","00580","00581","00582","00583","00584","00585","00586","00587","00588","00589","00590","00591","00592","00593","00594","00595","00596","00597","00599","00600","00601","00602","00603","00604","00605","00606","00607","00608","00609","00610","00611","00612","00613","00614","00615","00616","00619","00620","00621","00622","00623","00626","00627","00628","00629","00631","00632","00641","00642","00643","00644","00645","00646","00647","00648","00649","00650","00651","00652","00653","00654","00659","00660","00661","00662","00663","00664","00665","00666","00667","00668","00669","00670","00671","00672","00673","00674","00675","00676","00677","00678","00679","00680","00681","00682","00683","00684","00685","00686","00687","00688","00689","00690","00691","00692","00693","00694","00695","00696","00697","00698","00699","00700","00701","00702","00703","00704","00705","00706","00707","00708","00709","00710","00711","00712","00713","00714","00715","00716","00717","00718","00719","00720","00721","00722","00723","00724","00725","00726","00727","00728","00730","00731","00732","00733","00734","00735","00736","00737","00738","00739","00740","00748","00767","00768","00772","00785","00797","00803","00804","00806","00823","00831","00833","00835","00837","00838","00893","00895","00899","00908","00909","00910","00911","00912","00913","00914","00915","00916","00917","00918","00919","00920","00921","00922","00923","00924","00925","00926","00927","00928","00929","00930","00931","00932","00933","00934","00935","00936","00937","00938","00939","00940","00941","00942","00944","00946","00947","00948","00949","00950","00951","00952","00953","00954","00955","00956","00957","00958","00959","00960","00961","00962","00963","00964","00965","00966","00968","00969","00970","00971","00972","00973","00974","00975","00976","00977","00978","00979","00980","00981","00982","00983","00984","00985","00986","00987","00988","00989","00990","00991","00992","00993","00994","00995","00996","00997","00998","00999","01000","01001","01002","01003","01004","01005","01006","01007","01008","01009","01010","01011","01012","01013","01014","01015","01016","01017","01018","01019","01020","01021","01022","01023","01024","01025","01026","01027","01028","01029","01030","01031","01032","01033","01034","01035","01036","01037","01038","01039","01040","01041","01042","01043","01044","01045","01046","01047","01048","01049","01050","01051","01052","01053","01054","01055","01056","01057","01058","01059","01060","01061","01062","01063","01064","01065","01066","01067","01068","01069","01070","01071","01072","01073","01074","01075","01076","01077","01078","01079","01080","01081","01082","01083","01084","01085","01086","01087","01088","01089","01090","01091","01092","01093","01094","01095","01096","01097","01098","01099","01100","01101","01102","01103","01104","01105","01106","01107","01108","01109","01110","01111","01112","01113","01114","01115","01116","01117","01118","01119","01120","01122","01123","01124","01125","01126","01127","01129","01130","01131","01132","01133","01134","01135","01136","01137","01138","01139","01140","01141","01142","01143","01144","01145","01146","01147","01148","01149","01150","01151","01152","01153","01154","01155","01156","01157","01158","01159","01160","01161","01162","01163","01164","01165","01166","01167","01168","01169","01170","01171","01172","01173","01174","01175","01176","01177","01178","01179","01180","01181","01182","01183","01184","01185","01186","01187","01188","01189","01190","01191","01192","01193","01194","01195","01196","01197","01198","01199","01200","01201","01202","01203","01204","01205","01206","01207","01208","01209","01210","01211","01212","01213","01214","01215","01216","01217","01218","01219","01220","01222","01223","01224","01225","01226","01227","01228","01229","01230","01231","01232","01233","01234","01235","01236","01237","01238","01239","01240","01241","01242","01243","01244","01245","01246","01247","01248","01249","01250","01251","01252","01253","01254","01255","01256","01257","01258","01259","01260","01261","01262","01263","01264","01265","01266","01267","01268","01269","01270","01271","01272","01273","01274","01275","01276","01277","01278","01279","01280","01281","01282","01283","01284","01285","01286","01287","01288","01289","01290","01291","01292","01293","01294","01295","01296","01297","01298","01299","01300","01301","01302","01303","01304","01305","01306","01307","01308","01309","01310","01311","01312","01313","01314","01315","01316","01317","01318","01319","01320","01321","01322","01323","01324","01325","01326","01327","01328","01329","01330","01331","01332","01333","01334","01335","01336","01337","01338","01339","01340","01341","01342","01343","01345","01346","01347","01348","01349","01350","01351","01352","01353","01354","01355","01356","01357","01358","01359","01360","01361","01362","01363","01364","01365","01366","01367","01368","01369","01370","01371","01373","01374","01375","01376","01377","01378","01379","01380","01381","01382","01383","01384","01385","01386","01387","01388","01389","01390","01391","01392","01393","01394","01395","01396","01397","01398","01399","01400","01401","01402","01403","01404","01405","01406","01407","01408","01409","01410","01411","01412","01413","01414","01415","01416","01417","01418","01419","01420","01421","01422","01423","01424","01425","01426","01427","01428","01429","01430","01431","01432","01433","01434","01435","01436","01437","01438","01439","01440","01441","01442","01443","01444","01445","01446","01447","01448","01449","01450","01452","01453","01454","01455","01456","01457","01458","01459","01460","01461","01462","01463","01464","01465","01466","01467","01468","01469","01470","01471","01472","01473","01474","01475","01477","01478","01482","01483","01484","01485","01486","01487","01488","01489","01490","01491","01492","01493","01494","01495","01496","01497","01498","01499","01500","01501","01502","01503","01504","01505","01506","01507","01508","01509","01510","01511","01512","01513","01514","01515","01516","01517","01518","01519","01520","01521","01522","01523","01524","01525","01526","01527","01528","01529","01530","01531","01532","01533","01534","01535","01536","01537","01538","01539","01540","01541","01542","01543","01544","01545","01546","01547","01548","01549","01550","01551","01552","01553","01554","01555","01556","01557","01558","01559","01560","01563","01564","01565","01566","01567","01568","01569","01570","01571","01572","01573","01574","01575","01576","01577","01578","01579","01580","01581","01582","01583","01584","01585","01586","01587","01588","01589","01590","01591","01592","01594","01599","01600","01610","01611","01612","01630","01631","01632","01633","01634","01635","01636","01637","01638","01639","01640","01641","01642","01643","01644","01645","01646","01647","01648","01649","01650","01651","01652","01653","01654","01655","01656","01657","01658","01659","01660","01661","01662","01663","01664","01665","01666","01667","01668","01669","01670","01671","01672","01673","01674","01675","01676","01677","01678","01679","01680","01681","01682","01683","01684","01685","01686","01687","01688","01689","01690","01691","01692","01693","01694","01695","01696","01697","01698","01699","01705","01712","01713","01714","01715","01716","01717","01718","01719","01720","01721","01722","01723","01724","01725","01726","01727","01728","01729","01731","01732","01733","01734","01735","01736","01737","01738","01739","01740","01741","01742","01743","01744","01745","01746","01747","01748","01749","01750","01751","01752","01753","01754","01755","01756","01757","01758","01759","01760","01761","01762","01763","01764","01765","01766","01767","01768","01769","01770","01771","01772","01773","01774","01775","01776","01777","01778","01779","01780","01781","01782","01783","01784","01785","01786","01787","01788","01789","01790","01791","01792","01793","01794","01795","01796","01797","01798","01799","01800","01801","01802","01803","01804","01805","01806","01807","01808","01809","01810","01811","01812","01813","01814","01815","01816","01817","01818","01819","01820","01821","01822","01823","01824","01825","01826","01827","01828","01829","01830","01831","01832","01833","01834","01835","01836","01837","01838","01839","01840","01841","01842","01843","01844","01845","01846","01847","01848","01849","01850","01851","01852","01853","01854","01855","01856","01857","01858","01859","01860","01861","01862","01863","01864","01865","01866","01867","01868","01869","01870","01871","01872","01873","01874","01875","01877","01878","01879","01880","01881","01882","01883","01884","01885","01886","01887","01888","01889","01890","01891","01892","01893","01894","01895","01896","01898","01899","01900","01901","01902","01903","01904","01905","01906","01907","01908","01909","01910","01911","01912","01913","01914","01915","01916","01917","01918","01919","01920","01921","01922","01925","01926","01927","01928","01930","01931","01932","01933","01934","01935","01936","01937","01938","01939","01940","01941","01942","01943","01944","01945","01946","01947","01949","01950","01951","01952","01953","01954","01955","01956","01957","01958","01959","01960","01961","01962","01963","01965","01966","01967","01968","01969","01970","01971","01972","01973","01974","01976","01978","01979","01980","01981","01982","01983","01984","01985","01986","01987","01988","01989","01990","01991","01992","01993","01994","01997","01998","01999","02000","02001","02002","02003","02004","02005","02006","02007","02008","02009","02010","02012","02013","02014","02015","02016","02017","02018","02019","02020","02021","02022","02023","02024","02025","02026","02027","02028","02029","02030","02031","02032","02033","02034","02035","02036","02037","02038","02039","02040","02041","02042","02044","02045","02046","02047","02048","02049","02050","02051","02052","02053","02054","02055","02056","02057","02058","02059","02060","02061","02062","02063","02064","02065","02066","02067","02068","02069","02070","02071","02072","02073","02074","02075","02076","02077","02078","02079","02080","02081","02082","02083","02085","02086","02088","02089","02091","02092","02093","02094","02095","02096","02097","02098","02099","02100","02101","02102","02103","02104","02105","02106","02107","02108","02109","02110","02111","02112","02113","02114","02115","02116","02117","02118","02119","02120","02121","02122","02123","02124","02125","02126","02127","02128","02129","02130","02131","02132","02133","02134","02135","02136","02137","02138","02139","02140","02141","02142","02143","02144","02145","02146","02147","02148","02149","02150","02151","02152","02154","02155","02156","02157","02158","02159","02160","02161","02162","02163","02164","02165","02166","02167","02168","02169","02170","02171","02172","02173","02174","02175","02176","02177","02178","02179","02180","02183","02184","02185","02186","02187","02189","02190","02191","02192","02193","02194","02195","02196","02197","02198","02199","02200","02201","02202","02203","02204","02205","02206","02208","02209","02210","02211","02212","02213","02214","02215","02216","02217","02218","02219","02220","02221","02223","02224","02225","02226","02227","02228","02230","02231","02232","02233","02234","02235","02236","02238","02239","02240","02241","02242","02243","02244","02245","02246","02247","02248","02249","02250","02251","02252","02253","02254","02256","02257","02258","02259","02260","02261","02262","02263","02264","02265","02266","02267","02268","02269","02270","02271","02272","02273","02274","02275","02276","02277","02286","02288","02289","02290","02291","02300","02301","02302","02841","10001","10002","10003","10004","10005","10006","10007","10008","10010","10011","10012","10013","10014","10015","10016","10017","10018","10019","10020","10021","10022","10023","10024","10025","10026","10027","10028","10029","10030","10031","10032","10033","10034","10035","10036","10037","10038","10039","10040","10041","10042","10043","10044","10045","10046","10047","10048","10049","10050","10051","10052","10053","10054","10055","10056","10057","10058","10059","2072","2207","2282","2283","2284","2303","9002-001","9002-004","9002-005","9002-006","9002-007","9002-008","9002-009","9002-010","9002-011","9002-012","9002-013","9002-014","9002-016","9002-017","9002-018","9002-019","9003-001","9003-002","9003-003","9003-004","9003-005","9003-006","9003-007","9003-008","9003-009","9003-010","9003-011","9003-012","9005-001","9005-002","9005-003","9005-004","9005-005","9005-006","9005-007","9005-008","9005-009","9005-010","9005-011","9005-012","9005-013","9005-014","9005-015","9005-016","9005-017","9005-018","9005-019","9005-020","9005-021","9005-022","9005-023","9005-024","9005-025","9005-026","9005-027","9005-028","9005-029","9005-030","9005-031","9006-001","9006-002","9006-003","9006-004","9006-005","9006-006","9006-007","9006-008","9006-009","9006-010","9006-011","9006-012","9006-013","9006-014","9006-015","9006-016","9006-017","9006-018","9006-019","9006-020","9007-001","9008-001","9008-002","9012-001","9012-002","9012-003","9012-004","9012-005","9012-006","9012-007","9012-008","9012-009","9012-010","9012-011","9012-012","9012-013","9012-014","9012-015","9012-016","9012-017","9012-018","9012-019","9012-020","9012-021","9012-022","9012-023","9012-024","9012-025","9012-026","9012-027","9012-028","9012-029","9012-030","9012-031","9012-032","9012-033","9012-034","9012-035","9012-036","9017-001","9017-002","9017-003","9017-004","9017-005","9017-006","9017-007","9017-008","9017-009","9017-010","9017-011","9017-012","9017-014","9017-015","9017-016","9017-017","9017-018","9017-019","9017-021","9017-022","9017-023","9017-024","9017-025","9017-026","9017-027","9017-028","9017-029","9017-030","9017-031","9017-032","9017-033","9017-034","9017-035","9017-036","9017-037","9017-038","9018-001","9018-002","9018-003","9018-004","9018-005","9018-006","9018-007","9018-008","9018-009","9018-010","9018-011","9018-012","9018-013","9018-014","9018-015","9018-016","9018-017","9018-018","9018-019","9018-020","9018-021","9018-022","9018-023","9018-024","9018-025","9018-026","9018-027","9018-028","9018-029","9018-030","9018-031","9018-032","9018-033","9026-001","9026-002","9026-003","9026-004","9026-005","9026-006","9026-007","9026-008","9026-009","9026-010","9026-011","9026-012","9026-013","905","906","907","9999-9999","Container1","Container2","Container3","Container4","Container5","EE-B 6000","EE-B 770","EE-BB 303","EE-BB 36E","EE-BB 750","EE-BB 760","EE-BB 95E","EE-DH 234","EE-L 820","Serverraum 1","TEST-001"]);
+
+// ══════════ STATE ══════════
+let currentMode = 'erfassung';
+let photoAsset=null, photoQR=null, photoMove=null, photoExit=null;
+let suggestedId=null;
+let sessionTakenByBranch={};
+let sheetCounterCache={};
+
+// ══════════ INIT ══════════
+(function init(){
+  const sel=document.getElementById('branch');
+  const grpFil=document.createElement('optgroup');grpFil.label='Filialen';
+  const grpInt=document.createElement('optgroup');grpInt.label='Produktion / Lager';
+  BRANCHES.forEach(b=>{
+    const o=document.createElement('option');o.value=b.c;
+    o.textContent=`${b.c} · ${b.n}${b.a?` (${b.a})`:''}`;
+    (b.c.startsWith('99')?grpInt:grpFil).appendChild(o);
+  });
+  sel.appendChild(grpFil);sel.appendChild(grpInt);
+  const dl=document.getElementById('typeList');
+  TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;dl.appendChild(o);});
+  // letzter Erfasser
+  const sc=localStorage.getItem('rb_captor_intern');
+  if(sc){['captor','captorMove','captorExit'].forEach(id=>{
+    const s=document.getElementById(id);
+    if([...s.options].some(o=>o.value===sc))s.value=sc;});}
+  const nFil=BRANCHES.filter(b=>!b.c.startsWith('99')).length;
+  const nInt=BRANCHES.filter(b=>b.c.startsWith('99')).length;
+  document.getElementById('dataMeta').textContent=
+    `📊 Datenstand: ${DATA_DATE} · ${nFil} Filialen + ${nInt} interne Orte · ${TYPES.length} Typen · ${VALID_IDS.size} IDs`;
+})();
+
+// ══════════ MODUS ══════════
+function setMode(mode){
+  currentMode=mode;
+  ['erfassung','einlagern','abgang'].forEach(m=>{
+    document.getElementById('mode-'+m).classList.toggle('active',m===mode);
+    document.getElementById('group-'+m).classList.toggle('active',m===mode);
+  });
+}
+
+// ══════════ ERFASSUNG: ID-VORSCHLAG ══════════
+function onBranchChange(){
+  const code=document.getElementById('branch').value;
+  if(!code){const i=document.getElementById('assetId');i.value='';i.placeholder='Erfassungsort wählen …';i.className='';setIdStatus('','');return;}
+  // Standort-Default smart setzen: bei Produktion/Lager den passenden Standort vorwählen
+  const b=BRANCHES.find(x=>x.c===code);
+  if(b&&code.startsWith('99')){
+    const map={'9900':'loc-prod','9901':'loc-broda','9902':'loc-mammitzsch'};
+    const target=document.getElementById(map[code]);if(target)target.checked=true;
+  }else{
+    document.getElementById('loc-site').checked=true;
+  }
+  suggestNextId();
+}
+async function fetchSheetCounter(code){
+  if(sheetCounterCache[code]!==undefined)return sheetCounterCache[code];
+  try{
+    const r=await fetch(`${WEBHOOK}?action=nextId&branch=${code}&mode=intern`);
+    const d=await r.json();
+    const m=typeof d.count==='number'?d.count:0;
+    sheetCounterCache[code]=m;return m;
+  }catch(e){return 0;}
+}
+async function suggestNextId(){
+  const code=document.getElementById('branch').value;
+  if(!code)return;
+  const b=BRANCHES.find(x=>x.c===code);if(!b)return;
+  setIdStatus('','⏳ Nächste ID …');
+  const sheetMax=await fetchSheetCounter(code);
+  const taken=new Set([...b.t,...(sessionTakenByBranch[code]||[])]);
+  for(let i=1;i<=sheetMax;i++)taken.add(i);
+  let next=1;while(taken.has(next))next++;
+  suggestedId=`${code}-${String(next).padStart(3,'0')}`;
+  const i=document.getElementById('assetId');i.value=suggestedId;i.className='id-suggested';
+  setIdStatus('ok',`✓ Vorschlag · ${b.t.length} in Remberg + ${sheetMax} im Sheet`);
+}
+function onIdInput(){
+  const i=document.getElementById('assetId');const v=i.value.trim();const code=document.getElementById('branch').value;
+  if(!v){i.className='';setIdStatus('','');return;}
+  if(code&&v.startsWith(code+'-')){
+    const c=parseInt(v.split('-')[1],10);const b=BRANCHES.find(x=>x.c===code);
+    const taken=[...b.t,...(sessionTakenByBranch[code]||[])];
+    if(!isNaN(c)&&taken.includes(c)){i.className='id-warning';setIdStatus('warn','⚠ ID ggf. bereits vergeben!');return;}
+  }
+  if(v===suggestedId){i.className='id-suggested';setIdStatus('ok','✓ Vorgeschlagene ID');}
+  else{i.className='id-manual';setIdStatus('manual','✎ Manuell überschrieben');}
+}
+function setIdStatus(type,msg){const e=document.getElementById('idStatus');e.textContent=msg;e.className='id-status '+type;}
+
+// ══════════ FELDSTEUERUNG NACH ANLAGENTYP ══════════
+function onTypeChange(){
+  const type=document.getElementById('assetType').value.trim();
+  const rule=TYPE_FIELDS[type];
+  const block=document.getElementById('hlsBlock');
+  if(rule){
+    block.style.display='block';
+    // Hersteller und Lieferant immer Pflicht, Seriennummer je nach Regel
+    const setLabel=(id,base,req)=>{
+      document.getElementById(id).innerHTML=base+(req?' <span class="req">*</span>':' <span class="opt">opt.</span>');
+    };
+    setLabel('lbl-manufacturer','Hersteller',true);
+    setLabel('lbl-serial','Seriennr.',rule.s);
+    setLabel('lbl-supplier','Lieferant',true);
+    const hint=document.getElementById('reqHint');
+    const req=['Hersteller','Lieferant'];if(rule.s)req.push('Seriennummer');
+    hint.textContent=`Für „${type}" sind verpflichtend: ${req.join(', ')}.`;
+  }else{
+    block.style.display='none';
+    // beim Ausblenden auch die Werte leeren, damit nichts versehentlich gesendet wird
+    document.getElementById('manufacturer').value='';
+    document.getElementById('serialNo').value='';
+    document.getElementById('supplier').value='';
+  }
+}
+
+// ══════════ EINLAGERN / ABGANG: ID-LOOKUP ══════════
+function onLookupId(which){
+  const inputId=which==='move'?'moveId':'exitId';
+  const statusId=which==='move'?'moveStatus':'exitStatus';
+  const i=document.getElementById(inputId);const v=i.value.trim();
+  const s=document.getElementById(statusId);
+  if(!v){i.className='';s.textContent='';s.className='id-status';return;}
+  if(VALID_IDS.has(v)){
+    i.className='id-suggested';s.textContent='✓ Anlage in Remberg gefunden';s.className='id-status ok';
+  }else{
+    i.className='id-warning';s.textContent='⚠ ID nicht im aktuellen Datenstand — bitte prüfen (Senden trotzdem möglich)';s.className='id-status warn';
+  }
+}
+
+// ══════════ ABGANGSART ══════════
+function onExitTypeChange(){
+  const sel=document.querySelector('input[name="exitType"]:checked');
+  const val=sel?sel.value:'';
+  const hint=document.getElementById('exitHint');
+  const otherWrap=document.getElementById('exitOtherWrap');
+  if(val==='Verkauf'||val==='Verschrottung'){
+    hint.textContent='ℹ Bei '+val+' wird ein Beleg benötigt — bitte im Kommentarfeld vermerken (z.B. Belegnummer).';
+    hint.classList.add('show');
+  }else{hint.classList.remove('show');}
+  otherWrap.style.display=(val==='Sonstiges')?'block':'none';
+}
+
+// ══════════ FOTOS ══════════
+async function resizeImage(file){
+  const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
+  const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=dataUrl;});
+  const MAX=1600;let{width,height}=img;
+  if(width>MAX||height>MAX){if(width>height){height=Math.round(height*MAX/width);width=MAX;}else{width=Math.round(width*MAX/height);height=MAX;}}
+  const c=document.createElement('canvas');c.width=width;c.height=height;
+  c.getContext('2d').drawImage(img,0,0,width,height);
+  return c.toDataURL('image/jpeg',0.85);
+}
+async function handlePhoto(type,input){
+  const file=input.files[0];if(!file)return;
+  const wrapMap={asset:'wrap-asset',qr:'wrap-qr',move:'wrap-move',exit:'wrap-exit'};
+  const prevMap={asset:'prev-asset',qr:'prev-qr',move:'prev-move',exit:'prev-exit'};
+  const wrap=document.getElementById(wrapMap[type]);wrap.style.opacity='0.5';
+  try{
+    const resized=await resizeImage(file);
+    document.getElementById(prevMap[type]).src=resized;
+    wrap.classList.add('done');
+    if(type==='asset')photoAsset=resized;else if(type==='qr')photoQR=resized;
+    else if(type==='move')photoMove=resized;else if(type==='exit')photoExit=resized;
+  }catch(e){alert('Foto konnte nicht verarbeitet werden.');}
+  wrap.style.opacity='1';
+}
+function clearPhoto(type,e){
+  e.stopPropagation();e.preventDefault();
+  const wrapMap={asset:'wrap-asset',qr:'wrap-qr',move:'wrap-move',exit:'wrap-exit'};
+  const prevMap={asset:'prev-asset',qr:'prev-qr',move:'prev-move',exit:'prev-exit'};
+  document.getElementById(prevMap[type]).src='';
+  const wrap=document.getElementById(wrapMap[type]);wrap.classList.remove('done');
+  wrap.querySelector('input[type="file"]').value='';
+  if(type==='asset')photoAsset=null;else if(type==='qr')photoQR=null;
+  else if(type==='move')photoMove=null;else if(type==='exit')photoExit=null;
+}
+
+// ══════════ SENDEN ══════════
+async function send(){
+  if(currentMode==='erfassung')return sendErfassung();
+  if(currentMode==='einlagern')return sendEinlagern();
+  if(currentMode==='abgang')return sendAbgang();
+}
+
+async function postPayload(payload){
+  try{
+    await fetch(WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    return true;
+  }catch(e){return false;}
+}
+
+async function sendErfassung(){
+  const branchCode=document.getElementById('branch').value;
+  const assetId=document.getElementById('assetId').value.trim();
+  const assetType=document.getElementById('assetType').value.trim();
+  const assetStatus=document.querySelector('input[name="assetStatus"]:checked')?.value||'';
+  const location=document.querySelector('input[name="location"]:checked')?.value||'Einsatzort';
+  const captor=document.getElementById('captor').value;
+  const manufacturer=document.getElementById('manufacturer').value.trim();
+  const serialNo=document.getElementById('serialNo').value.trim();
+  const supplier=document.getElementById('supplier').value.trim();
+
+  if(!branchCode){alert('Bitte Filiale wählen.');return;}
+  if(!assetId){alert('Bitte Anlagen-ID eingeben.');return;}
+  if(!assetStatus){alert('Bitte Status wählen (Neu oder Bestand).');return;}
+  if(!assetType){alert('Bitte Anlagentyp wählen.');return;}
+  // bedingte Pflichtfelder
+  const rule=TYPE_FIELDS[assetType];
+  if(rule){
+    if(!manufacturer){alert(`Für „${assetType}" ist der Hersteller verpflichtend.`);return;}
+    if(!supplier){alert(`Für „${assetType}" ist der Lieferant verpflichtend.`);return;}
+    if(rule.s&&!serialNo){alert(`Für „${assetType}" ist die Seriennummer verpflichtend.`);return;}
+  }
+  if(!photoAsset){alert('Bitte Foto der Anlage aufnehmen.');return;}
+
+  if(captor)saveCaptor(captor,branchCode);
+  lockBtn(true);
+  const branchName=BRANCHES.find(b=>b.c===branchCode)?.n||'';
+  const ok=await postPayload({
+    mode:'intern',sheet:'erfassung',branch:branchCode,branchName,assetId,assetStatus,assetType,
+    manufacturer,serialNo,supplier,location,captor,
+    timestamp:new Date().toISOString(),comment:document.getElementById('comment').value.trim(),
+    inBenning:document.getElementById('inBenning').checked,
+    needsFollowUp:document.getElementById('needsFollowUp').checked,
+    photoAsset:photoAsset||'',photoQR:photoQR||'',
+  });
+  if(ok&&assetId.startsWith(branchCode+'-')){
+    const c=parseInt(assetId.split('-')[1],10);
+    if(!isNaN(c)){(sessionTakenByBranch[branchCode]=sessionTakenByBranch[branchCode]||[]).push(c);}
+    delete sheetCounterCache[branchCode];
+  }
+  lockBtn(false);showResult(ok,assetId,'erfasst');
+}
+
+async function sendEinlagern(){
+  const id=document.getElementById('moveId').value.trim();
+  const target=document.querySelector('input[name="moveTarget"]:checked')?.value||'';
+  const captor=document.getElementById('captorMove').value;
+  if(!id){alert('Bitte Anlagen-ID eingeben.');return;}
+  if(!target){alert('Bitte Ziel wählen.');return;}
+  if(!photoMove){alert('Bitte Foto aufnehmen.');return;}
+  if(captor)saveCaptor(captor,null);
+  lockBtn(true);
+  const ok=await postPayload({
+    mode:'intern',sheet:'einlagern',assetId:id,targetLocation:target,captor,
+    timestamp:new Date().toISOString(),comment:document.getElementById('commentMove').value.trim(),
+    photoMove:photoMove||'',
+  });
+  lockBtn(false);showResult(ok,id,'eingelagert');
+}
+
+async function sendAbgang(){
+  const id=document.getElementById('exitId').value.trim();
+  const exitType=document.querySelector('input[name="exitType"]:checked')?.value||'';
+  const exitOther=document.getElementById('exitOther').value.trim();
+  const captor=document.getElementById('captorExit').value;
+  if(!id){alert('Bitte Anlagen-ID eingeben.');return;}
+  if(!exitType){alert('Bitte Abgangsart wählen.');return;}
+  if(exitType==='Sonstiges'&&!exitOther){alert('Bitte bei „Sonstiges" eine Beschreibung eingeben.');return;}
+  if(!photoExit){alert('Bitte Beweisfoto aufnehmen.');return;}
+  if(captor)saveCaptor(captor,null);
+  lockBtn(true);
+  const ok=await postPayload({
+    mode:'intern',sheet:'abgang',assetId:id,exitType,exitOther,captor,
+    timestamp:new Date().toISOString(),comment:document.getElementById('commentExit').value.trim(),
+    photoExit:photoExit||'',
+  });
+  lockBtn(false);showResult(ok,id,'als Abgang erfasst');
+}
+
+function saveCaptor(captor,branchCode){
+  localStorage.setItem('rb_captor_intern',captor);
+  if(branchCode){
+    const pb=JSON.parse(localStorage.getItem('rb_captor_per_branch')||'{}');
+    pb[branchCode]=captor;localStorage.setItem('rb_captor_per_branch',JSON.stringify(pb));
+  }
+}
+function lockBtn(on){
+  const b=document.getElementById('sendBtn');b.disabled=on;
+  b.textContent=on?'⏳ Wird gesendet …':'Speichern & Senden →';
+}
+function showResult(ok,id,verb){
+  document.getElementById('resultIcon').textContent=ok?'✅':'⚠️';
+  document.getElementById('resultTitle').textContent=ok?'Gesendet!':'Fehler';
+  document.getElementById('resultMsg').textContent=ok?`Anlage „${id}" wurde ${verb}.`:'Übertragung fehlgeschlagen — bitte Verbindung prüfen.';
+  document.getElementById('result').classList.add('show');
+}
+
+// ══════════ RESET / CANCEL ══════════
+function resetAfterSend(){
+  document.getElementById('result').classList.remove('show');
+  resetCurrentMode(false);
+}
+function resetCurrentMode(full){
+  if(currentMode==='erfassung'){
+    if(full)document.getElementById('branch').value='';
+    document.getElementById('assetId').value='';document.getElementById('assetId').className='';
+    document.querySelectorAll('input[name="assetStatus"]').forEach(r=>r.checked=false);
+    document.getElementById('assetType').value='';
+    document.getElementById('manufacturer').value='';
+    document.getElementById('serialNo').value='';
+    document.getElementById('supplier').value='';
+    document.getElementById('comment').value='';
+    document.getElementById('loc-site').checked=true;
+    document.getElementById('inBenning').checked=false;
+    document.getElementById('needsFollowUp').checked=false;
+    onTypeChange();setIdStatus('','');suggestedId=null;
+    clearPhoto('asset',{stopPropagation(){},preventDefault(){}});
+    clearPhoto('qr',{stopPropagation(){},preventDefault(){}});
+    if(!full&&document.getElementById('branch').value)suggestNextId();
+  }else if(currentMode==='einlagern'){
+    document.getElementById('moveId').value='';document.getElementById('moveId').className='';
+    document.getElementById('moveStatus').textContent='';
+    document.querySelectorAll('input[name="moveTarget"]').forEach(r=>r.checked=false);
+    document.getElementById('commentMove').value='';
+    clearPhoto('move',{stopPropagation(){},preventDefault(){}});
+  }else if(currentMode==='abgang'){
+    document.getElementById('exitId').value='';document.getElementById('exitId').className='';
+    document.getElementById('exitStatus').textContent='';
+    document.querySelectorAll('input[name="exitType"]').forEach(r=>r.checked=false);
+    document.getElementById('exitOther').value='';
+    document.getElementById('exitOtherWrap').style.display='none';
+    document.getElementById('exitHint').classList.remove('show');
+    document.getElementById('commentExit').value='';
+    clearPhoto('exit',{stopPropagation(){},preventDefault(){}});
+  }
+}
+let _confirmResolve=null;
+function customConfirm(){return new Promise(res=>{_confirmResolve=res;document.getElementById('confirmOverlay').classList.add('show');});}
+function confirmAction(yes){document.getElementById('confirmOverlay').classList.remove('show');if(_confirmResolve){_confirmResolve(yes);_confirmResolve=null;}}
+async function cancelEntry(){
+  let hasData=false;
+  if(currentMode==='erfassung'){
+    hasData=document.getElementById('assetId').value.trim()||document.getElementById('assetType').value.trim()||
+      document.getElementById('manufacturer').value.trim()||document.getElementById('serialNo').value.trim()||
+      document.getElementById('supplier').value.trim()||document.getElementById('comment').value.trim()||
+      document.querySelector('input[name="assetStatus"]:checked')||photoAsset||photoQR;
+  }else if(currentMode==='einlagern'){
+    hasData=document.getElementById('moveId').value.trim()||document.querySelector('input[name="moveTarget"]:checked')||photoMove;
+  }else if(currentMode==='abgang'){
+    hasData=document.getElementById('exitId').value.trim()||document.querySelector('input[name="exitType"]:checked')||photoExit;
+  }
+  if(hasData){const ok=await customConfirm();if(!ok)return;}
+  resetCurrentMode(true);
+}
+</script>
+</body>
+</html>
