@@ -216,9 +216,9 @@ button#cancelBtn:active{color:var(--text);}
     <div>
       <span class="lbl">Status <span class="req">*</span></span>
       <div class="pill-toggle pill-2">
-        <input type="radio" name="assetStatus" id="status-new" value="neu">
+        <input type="radio" name="assetStatus" id="status-new" value="neu" onchange="onIdInput()">
         <label for="status-new"><span class="pl-main">🆕 Neuanlage</span><span class="pl-sub">Noch nicht in Remberg</span></label>
-        <input type="radio" name="assetStatus" id="status-existing" value="bestand">
+        <input type="radio" name="assetStatus" id="status-existing" value="bestand" onchange="onIdInput()">
         <label for="status-existing"><span class="pl-main">📋 Bestand</span><span class="pl-sub">In Remberg vorhanden</span></label>
       </div>
     </div>
@@ -432,7 +432,7 @@ button#cancelBtn:active{color:var(--text);}
 
 <script>
 // ══════════ KONFIGURATION ══════════
-const WEBHOOK   = 'https://script.google.com/macros/s/AKfycbzfIo1-f1mF8CmDy6O8qfYabAX9K25M8ypzfahlvCEpFtC-KVyyEAudLh83I8sd4LErHA/exec';
+const WEBHOOK   = 'https://script.google.com/macros/s/AKfycbxeEOrG1u04tOypPXgDB-AniWSCxjp4R-iNKB8-XmJGHSMVtW080VTdP4_sh_9ppFcJmg/exec';
 const DATA_DATE = '12.05.2026';
 
 // ══════════ EINGEBETTETE DATEN ══════════
@@ -462,7 +462,7 @@ const BRANCHES = [
   {c:"9031",n:"Sfb Rewe",a:31,t:[]},
   {c:"9032",n:"Ba Li Rewe",a:3,t:[]},
   {c:"9033",n:"Jessen",a:47,t:[1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48]},
-  {c:"9034",n:"Luckenwalde Netto",a:40,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]},
+  {c:"9034",n:"Jüterbog Netto",a:40,t:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]},
   {c:"9035",n:"Puschkinstraße (TG Edeka)",a:0,t:[]},
   {c:"9037",n:"Röhrweg (TG Netto)",a:0,t:[]},
   {c:"9039",n:"Turnierplatzweg (TG Kaufland)",a:0,t:[]},
@@ -554,18 +554,52 @@ async function suggestNextId(){
   let next=1;while(taken.has(next))next++;
   suggestedId=`${code}-${String(next).padStart(3,'0')}`;
   const i=document.getElementById('assetId');i.value=suggestedId;i.className='id-suggested';
-  setIdStatus('ok',`✓ Vorschlag · ${b.t.length} in Remberg + ${sheetMax} im Sheet`);
+  setIdStatus('ok',`✓ Vorschlag · nächste freie Nr. (Basis: ${sheetMax} vergeben)`);
 }
-function onIdInput(){
-  const i=document.getElementById('assetId');const v=i.value.trim();const code=document.getElementById('branch').value;
-  if(!v){i.className='';setIdStatus('','');return;}
-  if(code&&v.startsWith(code+'-')){
-    const c=parseInt(v.split('-')[1],10);const b=BRANCHES.find(x=>x.c===code);
-    const taken=[...b.t,...(sessionTakenByBranch[code]||[])];
-    if(!isNaN(c)&&taken.includes(c)){i.className='id-warning';setIdStatus('warn','⚠ ID ggf. bereits vergeben!');return;}
+// Prüft, ob eine Anlagen-ID bereits existiert — in Remberg (Export) ODER in dieser Session.
+function idExists(v){
+  if(VALID_IDS.has(v)) return true;                        // voller Remberg-ID-Satz (Export)
+  const parts=v.split('-');
+  if(parts.length===2){
+    const code=parts[0], c=parseInt(parts[1],10);
+    const b=BRANCHES.find(x=>x.c===code);
+    if(b && !isNaN(c)){
+      if(b.t.includes(c)) return true;                     // belegte Counter je Filiale (Export)
+      if((sessionTakenByBranch[code]||[]).includes(c)) return true; // gerade in dieser Session erfasst
+    }
   }
-  if(v===suggestedId){i.className='id-suggested';setIdStatus('ok','✓ Vorgeschlagene ID');}
-  else{i.className='id-manual';setIdStatus('manual','✎ Manuell überschrieben');}
+  return false;
+}
+
+// true = ID kollidiert und Senden ist gesperrt (nur relevant bei Status "Neuanlage")
+let idBlocked=false;
+
+function onIdInput(){
+  const i=document.getElementById('assetId');const v=i.value.trim();
+  const status=document.querySelector('input[name="assetStatus"]:checked')?.value||'';
+  idBlocked=false;
+  if(!v){i.className='';setIdStatus('','');return;}
+  const exists=idExists(v);
+
+  if(status==='neu'){
+    // Neuanlage: ID darf NICHT existieren
+    if(exists){
+      i.className='id-invalid';idBlocked=true;
+      setIdStatus('invalid','⛔ ID existiert bereits — Neuanlage nicht möglich. Bitte neuen Vorschlag holen (🔄).');
+      return;
+    }
+    if(v===suggestedId){i.className='id-suggested';setIdStatus('ok','✓ Vorgeschlagene ID (frei)');}
+    else{i.className='id-manual';setIdStatus('manual','✎ Manuell — frei');}
+  }else if(status==='bestand'){
+    // Bestand: ID SOLL existieren
+    if(exists){i.className='id-suggested';setIdStatus('ok','✓ Im Bestand gefunden');}
+    else{i.className='id-warning';setIdStatus('warn','⚠ Nicht im bekannten Bestand — bitte prüfen (Datenstand ggf. älter)');}
+  }else{
+    // Status noch nicht gewählt: nur informativ
+    if(exists){i.className='id-warning';setIdStatus('warn','⚠ ID existiert bereits — bei „Neuanlage" gesperrt');}
+    else if(v===suggestedId){i.className='id-suggested';setIdStatus('ok','✓ Vorgeschlagene ID');}
+    else{i.className='id-manual';setIdStatus('manual','✎ Manuell überschrieben');}
+  }
 }
 function setIdStatus(type,msg){const e=document.getElementById('idStatus');e.textContent=msg;e.className='id-status '+type;}
 
@@ -685,6 +719,11 @@ async function sendErfassung(){
   if(!branchCode){alert('Bitte Filiale wählen.');return;}
   if(!assetId){alert('Bitte Anlagen-ID eingeben.');return;}
   if(!assetStatus){alert('Bitte Status wählen (Neu oder Bestand).');return;}
+  // Harte Sperre: Neuanlage darf keine bereits existierende ID verwenden
+  if(assetStatus==='neu' && idExists(assetId)){
+    alert(`Die ID „${assetId}" existiert bereits (in Remberg oder in dieser Session).\n\nEine Neuanlage darf keine vorhandene ID überschreiben. Bitte hole dir mit 🔄 einen neuen Vorschlag oder wähle „Bestand", falls die Anlage bereits in Remberg ist.`);
+    return;
+  }
   if(!assetType){alert('Bitte Anlagentyp wählen.');return;}
   // bedingte Pflichtfelder
   const rule=TYPE_FIELDS[assetType];
@@ -694,6 +733,21 @@ async function sendErfassung(){
     if(rule.s&&!serialNo){alert(`Für „${assetType}" ist die Seriennummer verpflichtend.`);return;}
   }
   if(!photoAsset){alert('Bitte Foto der Anlage aufnehmen.');return;}
+
+  // Letzte Prüfung vor dem Senden: ID gegen die Sheets (Erfassungen anderer Geräte/Sessions)
+  if(assetStatus==='neu'){
+    lockBtn(true);
+    try{
+      const r=await fetch(`${WEBHOOK}?action=checkId&id=${encodeURIComponent(assetId)}`);
+      const d=await r.json();
+      if(d && d.exists){
+        lockBtn(false);
+        alert(`Die ID „${assetId}" wurde bereits über die App erfasst.\n\nBitte hole dir mit 🔄 einen neuen Vorschlag.`);
+        return;
+      }
+    }catch(e){ /* Webhook nicht erreichbar → lokaler Check muss genügen */ }
+    lockBtn(false);
+  }
 
   if(captor)saveCaptor(captor,branchCode);
   lockBtn(true);
