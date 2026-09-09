@@ -264,6 +264,8 @@ button#cancelBtn:active{color:var(--text);}
         <label for="loc-broda"><span class="pl-main">📦 Lager Broda</span></label>
         <input type="radio" name="location" id="loc-mammitzsch" value="Lager Mammitzsch">
         <label for="loc-mammitzsch"><span class="pl-main">📦 Lager Mammitzsch</span></label>
+        <input type="radio" name="location" id="loc-werkstatt" value="Werkstatt">
+        <label for="loc-werkstatt"><span class="pl-main">🔧 Werkstatt</span></label>
       </div>
     </div>
 
@@ -322,13 +324,15 @@ button#cancelBtn:active{color:var(--text);}
     </div>
     <div>
       <span class="lbl">Ziel <span class="req">*</span></span>
-      <div class="pill-toggle pill-3">
+      <div class="pill-toggle pill-2">
         <input type="radio" name="moveTarget" id="move-prod" value="Produktion">
         <label for="move-prod"><span class="pl-main">🏭 Produktion</span></label>
         <input type="radio" name="moveTarget" id="move-broda" value="Lager Broda">
-        <label for="move-broda"><span class="pl-main">📦 Broda</span></label>
+        <label for="move-broda"><span class="pl-main">📦 Lager Broda</span></label>
         <input type="radio" name="moveTarget" id="move-mammitzsch" value="Lager Mammitzsch">
-        <label for="move-mammitzsch"><span class="pl-main">📦 Mammitzsch</span></label>
+        <label for="move-mammitzsch"><span class="pl-main">📦 Lager Mammitzsch</span></label>
+        <input type="radio" name="moveTarget" id="move-werkstatt" value="Werkstatt">
+        <label for="move-werkstatt"><span class="pl-main">🔧 Werkstatt</span></label>
       </div>
     </div>
     <div class="section">Foto <span class="req">*</span></div>
@@ -440,7 +444,7 @@ button#cancelBtn:active{color:var(--text);}
 </script>
 <script>
 // ══════════ KONFIGURATION ══════════
-const WEBHOOK   = 'https://script.google.com/macros/s/AKfycby0ILB-9Xp-fVGerbFciachahLzuWKqXQy2SUfwZoFeE3enY3ql3JpR6TelkAThh9L29A/exec';
+const WEBHOOK   =  'https://script.google.com/macros/s/AKfycby0ILB-9Xp-fVGerbFciachahLzuWKqXQy2SUfwZoFeE3enY3ql3JpR6TelkAThh9L29A/exec';
 const DATA_DATE = '12.05.2026';
 
 // ══════════ EINGEBETTETE DATEN ══════════
@@ -478,6 +482,7 @@ const BRANCHES = [
   {c:"9900",n:"Produktion",a:0,t:[]},
   {c:"9901",n:"Lager Broda",a:0,t:[]},
   {c:"9902",n:"Lager Mammitzsch",a:0,t:[]},
+  {c:"9903",n:"Werkstatt",a:0,t:[]},
 ];
 
 const TYPES = ["Ablufthaube","Adventsbeleuchtung","Aktenvernichter","Alarmanlage","Allesschneider","Anschlagmaschine","Antenne","Aprikotiermaschine","Aufarbeitungstisch","Ausrollmaschine","Backofen Filiale","Bainmarie","Beleuchtung","Bestreugerät","Bildschirm","Blechputzmaschine","Bockwurstwärmer","Boiler","Bondrucker","Brötchenanlage","Brotschneidemaschine","Brotwirkmaschine","Computer","Convotherm","Cremekocher","Deckenventilator","Display","Drucker","Drucker Tortenfotos","Durchlauferhitzer","EC-Gerät","EDV","Einschweißgerät","Eismaschine","Eistheke","Eiswürfelbereiter","Etagenofen","Etikettiergerät","Fahrzeuge","Faxgerät","Fettbackgerät","Feuerlöscher","Füllgerät","Gärvollautomat","Gastherme","Geldscheinprüfer","Geldzähler","Gemüseschleuder","Gemüseschneider","Getränkekühlschrank","Grill","Hebeanlage","Hebekipper","Heizgerät","Hochdruckreiniger","Höhrnchenwickelmaschine","IT 8fach Verteiler","Induktionskochfeld","Insektenfallen","Kaffeemaschine","Kaltgerätekabel","Kasse","Kippbratpfanne","Klimaanlage","Klingeltrafo","Kombidämpfer","Kompressor","Kraftverlängerungskabel","Kraftverteiler","Kraftverteiler mit Schukodosen","Kuchenbödenmühle","Kuchenschneider","Kühlschrank","Kühlschrank2","Kühltheke","Kühlung","Ladegeräte","Laminiergerät","Leiter","Lüfter","Mehrfachstecker","Messerwärmer","Mikrowelle","Milchkühler","Mobiltelefon","Mohnmühle","Monitor","Netzteil","Nudelkocher","Obstkühler","Pager","Pasteurisierer","Preisschilddrucker","Quarkbällchengerät","Radio","Regal","Rezeptursteuerung","Router","Sahnemaschine","Scanner","Schmierstation","Schneidegerät","Schokotopf","Schukoverteiler","Sicherungskasten","Siegelgerät","Smoothimaker","Speedofen","Spiralkneter","Spülmaschine","Stabmixer","Standventilator","Staubsauger","Steckd. Plätzchenregal","Stikkenofen","Suppentopf","Switch","TK Schrank","TK Truhe","Tassenwärmer","Teigteiler","Telefon","Temperaturüberwachung","Tischwaage","Toolbox","Trockner","Tütenaufblasgerät","Vakuimierer","Ventilator","Verlängerungskabel","Verpackungsmaschine","WLAN Repeater","Waage","Waffeleisen","Wandtresor","Waschautomat","Waschmaschine Elektrolux","Wasserenthärter","Wasserkocher","Wendelkneter","Zirkulationspumpe","Zweifachherd","iPad"];
@@ -536,7 +541,7 @@ function onBranchChange(){
   // Standort-Default smart setzen: bei Produktion/Lager den passenden Standort vorwählen
   const b=BRANCHES.find(x=>x.c===code);
   if(b&&code.startsWith('99')){
-    const map={'9900':'loc-prod','9901':'loc-broda','9902':'loc-mammitzsch'};
+    const map={'9900':'loc-prod','9901':'loc-broda','9902':'loc-mammitzsch','9903':'loc-werkstatt'};
     const target=document.getElementById(map[code]);if(target)target.checked=true;
   }else{
     document.getElementById('loc-site').checked=true;
