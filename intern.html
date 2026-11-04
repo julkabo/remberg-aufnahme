@@ -179,6 +179,15 @@ button#cancelBtn:active{color:var(--text);}
 .oc-cancel{background:var(--card2);border:1.5px solid var(--border);color:var(--text-md);}
 .oc-confirm{background:var(--accent);border:none;color:#fff;}
 
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chips button{background:var(--card2);border:1.5px solid var(--border);border-radius:999px;padding:6px 11px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text-md);cursor:pointer;}
+.chips button:active{background:var(--acc-lt);border-color:var(--accent);color:var(--accent);}
+.link-btn{background:none;border:none;color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;
+  font-weight:800;padding:4px 0;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px;}
+#wartBlock{display:flex;flex-direction:column;gap:14px;}
+#wartDetails{display:flex;flex-direction:column;gap:0;}
+optgroup{font-weight:800;color:var(--text-sm);}
 .mode-group{display:none;}
 .mode-group.active{display:flex;flex-direction:column;gap:14px;}
 </style>
@@ -224,7 +233,7 @@ button#cancelBtn:active{color:var(--text);}
         <div>
           <input type="text" id="assetId" placeholder="Erfassungsort wählen …"
                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                 oninput="onIdInput()">
+                 oninput="onIdInput()" onchange="canonicalizeId()">
           <div class="id-status" id="idStatus"></div>
         </div>
         <button type="button" class="btn-refresh" onclick="suggestNextId()" title="Nächste ID">🔄</button>
@@ -262,26 +271,61 @@ button#cancelBtn:active{color:var(--text);}
       </div>
       <div style="margin-top:14px;">
         <span class="lbl" id="lbl-supplier">Lieferant <span class="req">*</span></span>
-        <input type="text" id="supplier" class="text-normal" placeholder="z.B. WMF, Dussmann">
+        <input type="text" id="supplier" class="text-normal" list="orgList" placeholder="Organisation wählen oder tippen" autocomplete="off">
+        <datalist id="orgList"></datalist>
       </div>
       <div class="hint-box show" id="reqHint" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- WARTUNG / PRÜFUNG — Pflicht bei größeren Geräten, sonst aufklappbar -->
+    <button type="button" class="link-btn" id="wartToggle" onclick="toggleWartung()" style="display:none;">+ Wartung / Prüfung erfassen</button>
+    <div id="wartBlock" style="display:none;">
+      <div class="section">Wartung &amp; Prüfung</div>
+      <div>
+        <span class="lbl">Wartung vorhanden? <span class="req">*</span></span>
+        <div class="pill-toggle pill-2">
+          <input type="radio" name="wartung" id="wart-ja" value="ja" onchange="onWartungChange()">
+          <label for="wart-ja"><span class="pl-main">✅ Ja</span><span class="pl-sub">Vertrag / regelmäßig</span></label>
+          <input type="radio" name="wartung" id="wart-nein" value="nein" onchange="onWartungChange()" checked>
+          <label for="wart-nein"><span class="pl-main">⛔ Nein</span><span class="pl-sub">keine Wartung</span></label>
+        </div>
+      </div>
+      <div id="wartDetails" style="display:none;">
+        <div>
+          <span class="lbl">Wartungskontakt <span class="req">*</span></span>
+          <input type="text" id="wartKontakt" class="text-normal" list="orgList" placeholder="Organisation wählen oder tippen" autocomplete="off">
+        </div>
+        <div style="margin-top:14px;">
+          <span class="lbl">Wartungszyklus <span class="req">*</span></span>
+          <input type="text" id="wartZyklus" class="text-normal" placeholder="z.B. 12 Monate">
+          <div class="chips" data-for="wartZyklus">
+            <button type="button">6 Monate</button><button type="button">12 Monate</button><button type="button">24 Monate</button><button type="button">nach Bedarf</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span class="lbl">Prüfung / TÜV vorgesehen? <span class="req">*</span></span>
+        <div class="pill-toggle pill-2">
+          <input type="radio" name="pruefungJN" id="pruef-ja" value="ja" onchange="onPruefungChange()">
+          <label for="pruef-ja"><span class="pl-main">✅ Ja</span><span class="pl-sub">TÜV / Sachkundige</span></label>
+          <input type="radio" name="pruefungJN" id="pruef-nein" value="nein" onchange="onPruefungChange()" checked>
+          <label for="pruef-nein"><span class="pl-main">⛔ Nein</span><span class="pl-sub">keine Prüfpflicht</span></label>
+        </div>
+      </div>
+      <div id="pruefDetails" style="display:none;">
+        <span class="lbl">Welche Prüfung / Zyklus <span class="req">*</span></span>
+        <input type="text" id="pruefung" class="text-normal" placeholder="z.B. TÜV 24 Monate">
+        <div class="chips" data-for="pruefung">
+          <button type="button">TÜV 12 Monate</button><button type="button">TÜV 24 Monate</button><button type="button">DGUV 12 Monate</button><button type="button">Sachkundigenprüfung jährlich</button>
+        </div>
+      </div>
     </div>
 
     <div class="section">Standort / Verbleib</div>
     <div>
       <span class="lbl">Wo befindet sich die Anlage? <span class="req">*</span></span>
-      <div class="pill-toggle pill-2">
-        <input type="radio" name="location" id="loc-site" value="Einsatzort" checked>
-        <label for="loc-site"><span class="pl-main">📍 Einsatzort</span></label>
-        <input type="radio" name="location" id="loc-prod" value="Produktion">
-        <label for="loc-prod"><span class="pl-main">🏭 Produktion</span></label>
-        <input type="radio" name="location" id="loc-broda" value="Lager Broda">
-        <label for="loc-broda"><span class="pl-main">📦 Lager Broda</span></label>
-        <input type="radio" name="location" id="loc-mammitzsch" value="Lager Mammitzsch">
-        <label for="loc-mammitzsch"><span class="pl-main">📦 Lager Mammitzsch</span></label>
-        <input type="radio" name="location" id="loc-werkstatt" value="Werkstatt">
-        <label for="loc-werkstatt"><span class="pl-main">🔧 Werkstatt</span></label>
-      </div>
+      <select id="location"></select>
+      <div class="id-status" id="locHint"></div>
     </div>
 
     <div class="section" id="fotoSection">Fotos <span class="req" id="fotoReq">*</span></div>
@@ -339,17 +383,8 @@ button#cancelBtn:active{color:var(--text);}
       <div class="id-status" id="moveStatus"></div>
     </div>
     <div>
-      <span class="lbl">Ziel <span class="req">*</span></span>
-      <div class="pill-toggle pill-2">
-        <input type="radio" name="moveTarget" id="move-prod" value="Produktion">
-        <label for="move-prod"><span class="pl-main">🏭 Produktion</span></label>
-        <input type="radio" name="moveTarget" id="move-broda" value="Lager Broda">
-        <label for="move-broda"><span class="pl-main">📦 Lager Broda</span></label>
-        <input type="radio" name="moveTarget" id="move-mammitzsch" value="Lager Mammitzsch">
-        <label for="move-mammitzsch"><span class="pl-main">📦 Lager Mammitzsch</span></label>
-        <input type="radio" name="moveTarget" id="move-werkstatt" value="Werkstatt">
-        <label for="move-werkstatt"><span class="pl-main">🔧 Werkstatt</span></label>
-      </div>
+      <span class="lbl">Ziel (Bereich) <span class="req">*</span></span>
+      <select id="moveTarget"><option value="">— Ziel wählen —</option></select>
     </div>
     <div class="section">Foto <span class="req">*</span></div>
     <div class="photo-single">
@@ -514,6 +549,127 @@ const TYPES = ["Ablufthaube","Adventsbeleuchtung","Aktenvernichter","Alarmanlage
 // Nicht gelistete Typen zeigen die Felder nicht an. s=true → Seriennummer verpflichtend.
 const TYPE_FIELDS = {"001Sammeltyp":{"s":false},"Anschlagmaschine":{"s":false},"Aprikotiermaschine":{"s":false},"Ausrollmaschine":{"s":false},"Backofen Filiale":{"s":true},"Bestreugerät":{"s":false},"Brötchenanlage":{"s":true},"Brotschneidemaschine":{"s":false},"Brotwirkmaschine":{"s":false},"Computer":{"s":false},"Convotherm":{"s":false},"Eismaschine":{"s":false},"Etagenofen":{"s":true},"Fahrzeuge":{"s":false},"Gärvollautomat":{"s":false},"Getränkekühlschrank":{"s":false},"Hebeanlage":{"s":false},"Hebekipper":{"s":false},"Höhrnchenwickelmaschine":{"s":false},"Kaffeemaschine":{"s":false},"Kippbratpfanne":{"s":false},"Klimaanlage":{"s":false},"Kühlschrank":{"s":true},"Kühlschrank2":{"s":true},"Kühltheke":{"s":false},"Kühlung":{"s":false},"Mohnmühle":{"s":false},"Quarkbällchengerät":{"s":false},"Rezeptursteuerung":{"s":false},"Sahnemaschine":{"s":false},"Schmierstation":{"s":false},"Speedofen":{"s":true},"Spiralkneter":{"s":false},"Spülmaschine":{"s":true},"Stikkenofen":{"s":true},"TK Schrank":{"s":true},"TK Truhe":{"s":true},"Waschautomat":{"s":false},"Wendelkneter":{"s":false}};
 // Nachrangige Typen: Anlagen-Foto optional (Liste bei Bedarf erweiterbar)
+// ══════════ ORTE (aus orte.csv im Repo; eingebettete Kopie als Fallback) ══════════
+const ORTE_FALLBACK=`9002;Fiwa Süd;;;Filiale;ja
+9003;Fiwa Edeka;;;Filiale;ja
+9005;Fiwa Markt;;;Filiale;ja
+9006;Sowa Markt;;;Filiale;ja
+9007;Herzb. Penny;;;Filiale;ja
+9008;Falkenberg Uebigauer;;;Filiale;ja
+9009;Eda Rewe;;;Filiale;ja
+9010;L'au Ehm-W.;;;Filiale;ja
+9011;Falkenberg Netto;;;Filiale;ja
+9012;Fiwa Nord;;;Filiale;ja
+9014;Ba Li Rossmarkt;;;Filiale;ja
+9015;Großrä Rudolf-B;;;Filiale;ja
+9017;Calau Cottbuser;;;Filiale;ja
+9018;Kirchh. Markt;;;Filiale;ja
+9019;Luckau;;;Filiale;ja
+9022;Schwarzheide Rewe;;;Filiale;ja
+9023;Herzb. Zentrum;;;Filiale;ja
+9024;Lübben;;;Filiale;ja
+9025;Cottbus Rosenstraße;;;Filiale;ja
+9026;Kirchh. Edeka;;;Filiale;ja
+9027;Jüterbog Markt;;;Filiale;ja
+9028;Luckenwalde;;;Filiale;ja
+9031;Sfb Rewe;;;Filiale;ja
+9032;Ba Li Rewe;;;Filiale;ja
+9033;Jessen;;;Filiale;ja
+9034;Jüterbog Netto;;;Filiale;ja
+9035;Puschkinstraße (TG Edeka);;;Filiale;ja
+9037;Röhrweg (TG Netto);;;Filiale;ja
+9039;Turnierplatzweg (TG Kaufland);;;Filiale;ja
+9042;Leipziger Straße (TG);;;Filiale;ja
+2000;Betriebsstätte allgemein;;Betriebsstätte DoKi;Intern;ja
+2001;Heizraum;;Heizraum;Intern;ja
+2002;Serverraum;;Serverraum 1;Intern;ja
+2003;Lüftungsraum;;Lüftungsraum;Intern;ja
+2004;WCs;;WCs;Intern;ja
+2005;Gr Salon;;Gr Salon;Intern;ja
+2006;Müllplatz;;Müllplatz;Intern;ja
+2007;Abwasch;;Abwasch;Intern;ja
+2010;Rohstofflager;;Rohstofflager;Intern;ja
+2011;Außenlager;;Außenlager;Intern;ja
+2012;Kühlzellen;;Kühlzellen;Intern;ja
+2013;Lager Sonnewalde;;Außenager Sonnewalde;Intern;ja
+2014;Lager Mammitsch;;Außenlager Mammitsch;Intern;ja
+2015;Lager Broda;;Lager;Intern;ja
+2020;Kuchen;;Kuchen;Intern;ja
+2030;Kleingebäck;;Kleingebäck;Intern;ja
+2040;Kondi;;Kondi;Intern;ja
+2050;Küche;;Küche;Intern;ja
+2060;Brot/Brötchen;;Brot;Intern;ja
+2070;Kommissionierung / Logistik;;Kommissionierung / Logistik;Intern;ja
+2090;Silo / Teigmacherei;;Teigmacherei;Intern;ja
+9900;Produktion;;Produktion;Intern;nein
+9900;Produktion;Abwasch;Abwasch;Intern;nein
+9900;Produktion;Brot;Brot;Intern;nein
+9900;Produktion;Kleingebäck;Kleingebäck;Intern;nein
+9900;Produktion;Kondi;Kondi;Intern;nein
+9900;Produktion;Kuchen;Kuchen;Intern;nein
+9900;Produktion;Küche;Küche;Intern;nein
+9900;Produktion;Siloraum;Siloraum;Intern;nein
+9900;Produktion;Teigmacherei;Teigmacherei;Intern;nein
+9901;Lager Broda;;Lager;Intern;nein
+9901;Lager Broda;Hochregallager;Hochregallager;Intern;nein
+9901;Lager Broda;Kistenlager;Kistenlager;Intern;nein
+9901;Lager Broda;Kombi-Lager;Kombi-Lager;Intern;nein
+9901;Lager Broda;Ersatzteillager;Ersatzteillager;Intern;nein
+9901;Lager Broda;Reinigungsmittellager;Reinigungsmittellager;Intern;nein
+9901;Lager Broda;Rohstofflager;Rohstofflager;Intern;nein
+9901;Lager Broda;Container 1;Container1;Intern;nein
+9901;Lager Broda;Container 2;Container2;Intern;nein
+9901;Lager Broda;Container 3;Container3;Intern;nein
+9901;Lager Broda;Container 4;Container4;Intern;nein
+9901;Lager Broda;Container 5;Container5;Intern;nein
+9902;Lager Mammitzsch;;Außenlager Mammitsch;Intern;nein
+9903;Werkstatt;;Werkstatt;Intern;ja
+9904;Verwaltung;;Verwaltung;Intern;nein
+9904;Verwaltung;Serverraum 1;Serverraum 1;Intern;nein
+9904;Verwaltung;Serverraum Broda;Serverraum Broda;Intern;nein
+9904;Verwaltung;IT/Technik-Büro;IT/Technik-Büro;Intern;nein
+9905;Sozialräume;;Sozialräume;Intern;nein
+9906;Fuhrpark;;Fuhrpark;Intern;nein
+9907;Außenlager Sonnewalde;;Außenager Sonnewalde;Intern;nein`;
+let ORTE=[];            // [{code,ort,bereich,parent,gruppe}] nur aktiv=ja
+function parseOrte(txt){
+  const out=[];
+  txt.split(/\r?\n/).forEach((line,i)=>{
+    if(!line.trim()||(i===0&&line.toLowerCase().startsWith('code;')))return;
+    const [code,ort,bereich,parent,gruppe,aktiv]=line.split(';').map(x=>(x||'').trim());
+    if(!code||!ort)return;
+    if((aktiv||'ja').toLowerCase()!=='ja')return;
+    out.push({code,ort,bereich,parent,gruppe:gruppe||(code.startsWith('99')?'Intern':'Filiale')});
+  });
+  return out;
+}
+function orteList(){ // eindeutige Orte in CSV-Reihenfolge
+  const seen=new Map();ORTE.forEach(o=>{if(!seen.has(o.code))seen.set(o.code,{code:o.code,name:o.ort,gruppe:o.gruppe});});
+  return [...seen.values()];
+}
+function bereicheOf(code){ // Bereiche eines Orts; Standard (bereich leer) zuerst
+  const rows=ORTE.filter(o=>o.code===code);
+  const std=rows.filter(o=>!o.bereich), sub=rows.filter(o=>o.bereich);
+  return [...std,...sub];
+}
+// Wartungsblock-Pflicht: Hersteller/Lieferant-Liste + Eistheke (Kernprozess)
+const WART_TYPES=new Set([...Object.keys(TYPE_FIELDS),"Eistheke"]);
+let wartRequired=false, wartOpen=false;
+
+// ══════════ ORGANISATIONEN (Remberg, über Webhook aus Tab "Orgs") ══════════
+let ORGS=[];
+function fillOrgList(){
+  const dl=document.getElementById('orgList');if(!dl)return;dl.innerHTML='';
+  ORGS.forEach(o=>{const op=document.createElement('option');op.value=o.name;dl.appendChild(op);});
+}
+async function loadOrgs(){
+  try{const c=JSON.parse(localStorage.getItem('rb_orgs')||'null');if(c&&c.length){ORGS=c;fillOrgList();}}catch(e){}
+  try{
+    const r=await fetch(`${WEBHOOK}?action=orgs`);const d=await r.json();
+    if(d&&Array.isArray(d.orgs)&&d.orgs.length){ORGS=d.orgs;fillOrgList();try{localStorage.setItem('rb_orgs',JSON.stringify(ORGS));}catch(e){}}
+  }catch(e){/* offline: Cache oder Freitext */}
+}
+
 const NO_PHOTO_TYPES=new Set(["Verlängerungskabel","Kraftverlängerungskabel","Kaltgerätekabel","Mehrfachstecker","Schukoverteiler","Kraftverteiler","Kraftverteiler mit Schukodosen","IT 8fach Verteiler","Ladegeräte","Netzteil"]);
 
 const VALID_IDS = new Set(["00002","00003","00004","00005","00006","00007","00008","00009","00010","00011","00013","00014","00015","00016","00017","00018","00019","00020","00021","00022","00023","00024","00025","00026","00027","00028","00029","00030","00031","00032","00033","00034","00035","00036","00037","00039","00040","00041","00042","00043","00044","00045","00046","00047","00048","00049","00050","00051","00052","00053","00054","00055","00056","00057","00058","00059","00060","00061","00062","00063","00064","00065","00072","00073","00074","00075","00076","00077","00078","00079","00080","00081","00082","00083","00084","00085","00086","00087","00088","00089","00090","00091","00092","00093","00094","00095","00096","00097","00098","00099","00100","00101","00102","00103","00104","00105","00106","00107","00108","00109","00110","00111","00112","00113","00114","00115","00116","00117","00119","00122","00124","00132","00133","00134","00135","00136","00137","00138","00139","00140","00141","00142","00143","00144","00145","00146","00147","00148","00149","00150","00151","00152","00153","00154","00155","00156","00157","00158","00159","00160","00161","00162","00163","00164","00165","00166","00167","00168","00169","00170","00171","00172","00173","00174","00175","00176","00177","00178","00179","00180","00181","00182","00183","00184","00185","00186","00187","00188","00189","00190","00191","00192","00193","00194","00195","00196","00197","00198","00199","00200","00201","00202","00203","00204","00205","00206","00207","00208","00209","00210","00211","00212","00213","00214","00215","00216","00217","00218","00219","00220","00221","00222","00223","00224","00225","00226","00227","00228","00229","00230","00231","00232","00233","00234","00235","00237","00238","00239","00240","00241","00242","00243","00244","00245","00246","00247","00248","00250","00251","00252","00253","00254","00255","00256","00257","00258","00259","00260","00261","00262","00263","00264","00265","00266","00267","00268","00269","00270","00271","00272","00273","00274","00275","00276","00277","00278","00279","00280","00281","00282","00283","00284","00285","00286","00287","00288","00289","00290","00291","00292","00293","00294","00295","00296","00297","00298","00299","00300","00301","00302","00303","00304","00305","00306","00307","00308","00309","00310","00311","00312","00313","00314","00315","00316","00317","00318","00319","00320","00321","00322","00323","00324","00326","00327","00328","00329","00330","00331","00332","00333","00334","00335","00336","00337","00338","00339","00340","00341","00342","00343","00344","00345","00346","00347","00348","00349","00350","00351","00352","00353","00354","00355","00356","00359","00360","00361","00362","00363","00364","00365","00366","00367","00368","00369","00370","00371","00372","00373","00374","00375","00376","00377","00378","00379","00380","00381","00382","00383","00384","00385","00386","00387","00388","00389","00390","00391","00392","00393","00394","00395","00396","00397","00398","00399","00400","00401","00402","00403","00404","00405","00406","00407","00408","00409","00410","00411","00412","00413","00414","00415","00416","00417","00418","00419","00420","00421","00422","00423","00424","00425","00426","00427","00428","00429","00430","00431","00432","00433","00434","00435","00436","00437","00438","00439","00440","00441","00442","00443","00444","00445","00446","00447","00448","00449","00450","00451","00452","00453","00454","00455","00456","00457","00458","00459","00460","00461","00462","00463","00464","00465","00466","00467","00468","00469","00470","00471","00472","00473","00474","00475","00476","00477","00478","00479","00480","00481","00482","00483","00485","00486","00487","00488","00489","00490","00492","00493","00494","00495","00496","00497","00498","00499","00500","00501","00502","00503","00504","00505","00506","00507","00508","00509","00510","00511","00512","00513","00514","00515","00516","00517","00518","00519","00520","00521","00522","00523","00524","00525","00526","00527","00528","00529","00530","00531","00532","00533","00534","00535","00536","00537","00538","00539","00540","00541","00542","00543","00545","00546","00547","00548","00549","00550","00551","00552","00553","00554","00555","00556","00557","00558","00559","00560","00561","00562","00563","00564","00565","00566","00567","00568","00569","00570","00571","00572","00573","00574","00575","00576","00577","00578","00579","00580","00581","00582","00583","00584","00585","00586","00587","00588","00589","00590","00591","00592","00593","00594","00595","00596","00597","00599","00600","00601","00602","00603","00604","00605","00606","00607","00608","00609","00610","00611","00612","00613","00614","00615","00616","00619","00620","00621","00622","00623","00626","00627","00628","00629","00631","00632","00641","00642","00643","00644","00645","00646","00647","00648","00649","00650","00651","00652","00653","00654","00659","00660","00661","00662","00663","00664","00665","00666","00667","00668","00669","00670","00671","00672","00673","00674","00675","00676","00677","00678","00679","00680","00681","00682","00683","00684","00685","00686","00687","00688","00689","00690","00691","00692","00693","00694","00695","00696","00697","00698","00699","00700","00701","00702","00703","00704","00705","00706","00707","00708","00709","00710","00711","00712","00713","00714","00715","00716","00717","00718","00719","00720","00721","00722","00723","00724","00725","00726","00727","00728","00730","00731","00732","00733","00734","00735","00736","00737","00738","00739","00740","00748","00767","00768","00772","00785","00797","00803","00804","00806","00823","00831","00833","00835","00837","00838","00893","00895","00899","00908","00909","00910","00911","00912","00913","00914","00915","00916","00917","00918","00919","00920","00921","00922","00923","00924","00925","00926","00927","00928","00929","00930","00931","00932","00933","00934","00935","00936","00937","00938","00939","00940","00941","00942","00944","00946","00947","00948","00949","00950","00951","00952","00953","00954","00955","00956","00957","00958","00959","00960","00961","00962","00963","00964","00965","00966","00968","00969","00970","00971","00972","00973","00974","00975","00976","00977","00978","00979","00980","00981","00982","00983","00984","00985","00986","00987","00988","00989","00990","00991","00992","00993","00994","00995","00996","00997","00998","00999","01000","01001","01002","01003","01004","01005","01006","01007","01008","01009","01010","01011","01012","01013","01014","01015","01016","01017","01018","01019","01020","01021","01022","01023","01024","01025","01026","01027","01028","01029","01030","01031","01032","01033","01034","01035","01036","01037","01038","01039","01040","01041","01042","01043","01044","01045","01046","01047","01048","01049","01050","01051","01052","01053","01054","01055","01056","01057","01058","01059","01060","01061","01062","01063","01064","01065","01066","01067","01068","01069","01070","01071","01072","01073","01074","01075","01076","01077","01078","01079","01080","01081","01082","01083","01084","01085","01086","01087","01088","01089","01090","01091","01092","01093","01094","01095","01096","01097","01098","01099","01100","01101","01102","01103","01104","01105","01106","01107","01108","01109","01110","01111","01112","01113","01114","01115","01116","01117","01118","01119","01120","01122","01123","01124","01125","01126","01127","01129","01130","01131","01132","01133","01134","01135","01136","01137","01138","01139","01140","01141","01142","01143","01144","01145","01146","01147","01148","01149","01150","01151","01152","01153","01154","01155","01156","01157","01158","01159","01160","01161","01162","01163","01164","01165","01166","01167","01168","01169","01170","01171","01172","01173","01174","01175","01176","01177","01178","01179","01180","01181","01182","01183","01184","01185","01186","01187","01188","01189","01190","01191","01192","01193","01194","01195","01196","01197","01198","01199","01200","01201","01202","01203","01204","01205","01206","01207","01208","01209","01210","01211","01212","01213","01214","01215","01216","01217","01218","01219","01220","01222","01223","01224","01225","01226","01227","01228","01229","01230","01231","01232","01233","01234","01235","01236","01237","01238","01239","01240","01241","01242","01243","01244","01245","01246","01247","01248","01249","01250","01251","01252","01253","01254","01255","01256","01257","01258","01259","01260","01261","01262","01263","01264","01265","01266","01267","01268","01269","01270","01271","01272","01273","01274","01275","01276","01277","01278","01279","01280","01281","01282","01283","01284","01285","01286","01287","01288","01289","01290","01291","01292","01293","01294","01295","01296","01297","01298","01299","01300","01301","01302","01303","01304","01305","01306","01307","01308","01309","01310","01311","01312","01313","01314","01315","01316","01317","01318","01319","01320","01321","01322","01323","01324","01325","01326","01327","01328","01329","01330","01331","01332","01333","01334","01335","01336","01337","01338","01339","01340","01341","01342","01343","01345","01346","01347","01348","01349","01350","01351","01352","01353","01354","01355","01356","01357","01358","01359","01360","01361","01362","01363","01364","01365","01366","01367","01368","01369","01370","01371","01373","01374","01375","01376","01377","01378","01379","01380","01381","01382","01383","01384","01385","01386","01387","01388","01389","01390","01391","01392","01393","01394","01395","01396","01397","01398","01399","01400","01401","01402","01403","01404","01405","01406","01407","01408","01409","01410","01411","01412","01413","01414","01415","01416","01417","01418","01419","01420","01421","01422","01423","01424","01425","01426","01427","01428","01429","01430","01431","01432","01433","01434","01435","01436","01437","01438","01439","01440","01441","01442","01443","01444","01445","01446","01447","01448","01449","01450","01452","01453","01454","01455","01456","01457","01458","01459","01460","01461","01462","01463","01464","01465","01466","01467","01468","01469","01470","01471","01472","01473","01474","01475","01477","01478","01482","01483","01484","01485","01486","01487","01488","01489","01490","01491","01492","01493","01494","01495","01496","01497","01498","01499","01500","01501","01502","01503","01504","01505","01506","01507","01508","01509","01510","01511","01512","01513","01514","01515","01516","01517","01518","01519","01520","01521","01522","01523","01524","01525","01526","01527","01528","01529","01530","01531","01532","01533","01534","01535","01536","01537","01538","01539","01540","01541","01542","01543","01544","01545","01546","01547","01548","01549","01550","01551","01552","01553","01554","01555","01556","01557","01558","01559","01560","01563","01564","01565","01566","01567","01568","01569","01570","01571","01572","01573","01574","01575","01576","01577","01578","01579","01580","01581","01582","01583","01584","01585","01586","01587","01588","01589","01590","01591","01592","01594","01599","01600","01610","01611","01612","01630","01631","01632","01633","01634","01635","01636","01637","01638","01639","01640","01641","01642","01643","01644","01645","01646","01647","01648","01649","01650","01651","01652","01653","01654","01655","01656","01657","01658","01659","01660","01661","01662","01663","01664","01665","01666","01667","01668","01669","01670","01671","01672","01673","01674","01675","01676","01677","01678","01679","01680","01681","01682","01683","01684","01685","01686","01687","01688","01689","01690","01691","01692","01693","01694","01695","01696","01697","01698","01699","01705","01712","01713","01714","01715","01716","01717","01718","01719","01720","01721","01722","01723","01724","01725","01726","01727","01728","01729","01731","01732","01733","01734","01735","01736","01737","01738","01739","01740","01741","01742","01743","01744","01745","01746","01747","01748","01749","01750","01751","01752","01753","01754","01755","01756","01757","01758","01759","01760","01761","01762","01763","01764","01765","01766","01767","01768","01769","01770","01771","01772","01773","01774","01775","01776","01777","01778","01779","01780","01781","01782","01783","01784","01785","01786","01787","01788","01789","01790","01791","01792","01793","01794","01795","01796","01797","01798","01799","01800","01801","01802","01803","01804","01805","01806","01807","01808","01809","01810","01811","01812","01813","01814","01815","01816","01817","01818","01819","01820","01821","01822","01823","01824","01825","01826","01827","01828","01829","01830","01831","01832","01833","01834","01835","01836","01837","01838","01839","01840","01841","01842","01843","01844","01845","01846","01847","01848","01849","01850","01851","01852","01853","01854","01855","01856","01857","01858","01859","01860","01861","01862","01863","01864","01865","01866","01867","01868","01869","01870","01871","01872","01873","01874","01875","01877","01878","01879","01880","01881","01882","01883","01884","01885","01886","01887","01888","01889","01890","01891","01892","01893","01894","01895","01896","01898","01899","01900","01901","01902","01903","01904","01905","01906","01907","01908","01909","01910","01911","01912","01913","01914","01915","01916","01917","01918","01919","01920","01921","01922","01925","01926","01927","01928","01930","01931","01932","01933","01934","01935","01936","01937","01938","01939","01940","01941","01942","01943","01944","01945","01946","01947","01949","01950","01951","01952","01953","01954","01955","01956","01957","01958","01959","01960","01961","01962","01963","01965","01966","01967","01968","01969","01970","01971","01972","01973","01974","01976","01978","01979","01980","01981","01982","01983","01984","01985","01986","01987","01988","01989","01990","01991","01992","01993","01994","01997","01998","01999","02000","02001","02002","02003","02004","02005","02006","02007","02008","02009","02010","02012","02013","02014","02015","02016","02017","02018","02019","02020","02021","02022","02023","02024","02025","02026","02027","02028","02029","02030","02031","02032","02033","02034","02035","02036","02037","02038","02039","02040","02041","02042","02044","02045","02046","02047","02048","02049","02050","02051","02052","02053","02054","02055","02056","02057","02058","02059","02060","02061","02062","02063","02064","02065","02066","02067","02068","02069","02070","02071","02072","02073","02074","02075","02076","02077","02078","02079","02080","02081","02082","02083","02085","02086","02088","02089","02091","02092","02093","02094","02095","02096","02097","02098","02099","02100","02101","02102","02103","02104","02105","02106","02107","02108","02109","02110","02111","02112","02113","02114","02115","02116","02117","02118","02119","02120","02121","02122","02123","02124","02125","02126","02127","02128","02129","02130","02131","02132","02133","02134","02135","02136","02137","02138","02139","02140","02141","02142","02143","02144","02145","02146","02147","02148","02149","02150","02151","02152","02154","02155","02156","02157","02158","02159","02160","02161","02162","02163","02164","02165","02166","02167","02168","02169","02170","02171","02172","02173","02174","02175","02176","02177","02178","02179","02180","02183","02184","02185","02186","02187","02189","02190","02191","02192","02193","02194","02195","02196","02197","02198","02199","02200","02201","02202","02203","02204","02205","02206","02208","02209","02210","02211","02212","02213","02214","02215","02216","02217","02218","02219","02220","02221","02223","02224","02225","02226","02227","02228","02230","02231","02232","02233","02234","02235","02236","02238","02239","02240","02241","02242","02243","02244","02245","02246","02247","02248","02249","02250","02251","02252","02253","02254","02256","02257","02258","02259","02260","02261","02262","02263","02264","02265","02266","02267","02268","02269","02270","02271","02272","02273","02274","02275","02276","02277","02286","02288","02289","02290","02291","02300","02301","02302","02841","10001","10002","10003","10004","10005","10006","10007","10008","10010","10011","10012","10013","10014","10015","10016","10017","10018","10019","10020","10021","10022","10023","10024","10025","10026","10027","10028","10029","10030","10031","10032","10033","10034","10035","10036","10037","10038","10039","10040","10041","10042","10043","10044","10045","10046","10047","10048","10049","10050","10051","10052","10053","10054","10055","10056","10057","10058","10059","2072","2207","2282","2283","2284","2303","9002-001","9002-004","9002-005","9002-006","9002-007","9002-008","9002-009","9002-010","9002-011","9002-012","9002-013","9002-014","9002-016","9002-017","9002-018","9002-019","9003-001","9003-002","9003-003","9003-004","9003-005","9003-006","9003-007","9003-008","9003-009","9003-010","9003-011","9003-012","9005-001","9005-002","9005-003","9005-004","9005-005","9005-006","9005-007","9005-008","9005-009","9005-010","9005-011","9005-012","9005-013","9005-014","9005-015","9005-016","9005-017","9005-018","9005-019","9005-020","9005-021","9005-022","9005-023","9005-024","9005-025","9005-026","9005-027","9005-028","9005-029","9005-030","9005-031","9006-001","9006-002","9006-003","9006-004","9006-005","9006-006","9006-007","9006-008","9006-009","9006-010","9006-011","9006-012","9006-013","9006-014","9006-015","9006-016","9006-017","9006-018","9006-019","9006-020","9007-001","9008-001","9008-002","9012-001","9012-002","9012-003","9012-004","9012-005","9012-006","9012-007","9012-008","9012-009","9012-010","9012-011","9012-012","9012-013","9012-014","9012-015","9012-016","9012-017","9012-018","9012-019","9012-020","9012-021","9012-022","9012-023","9012-024","9012-025","9012-026","9012-027","9012-028","9012-029","9012-030","9012-031","9012-032","9012-033","9012-034","9012-035","9012-036","9017-001","9017-002","9017-003","9017-004","9017-005","9017-006","9017-007","9017-008","9017-009","9017-010","9017-011","9017-012","9017-014","9017-015","9017-016","9017-017","9017-018","9017-019","9017-021","9017-022","9017-023","9017-024","9017-025","9017-026","9017-027","9017-028","9017-029","9017-030","9017-031","9017-032","9017-033","9017-034","9017-035","9017-036","9017-037","9017-038","9018-001","9018-002","9018-003","9018-004","9018-005","9018-006","9018-007","9018-008","9018-009","9018-010","9018-011","9018-012","9018-013","9018-014","9018-015","9018-016","9018-017","9018-018","9018-019","9018-020","9018-021","9018-022","9018-023","9018-024","9018-025","9018-026","9018-027","9018-028","9018-029","9018-030","9018-031","9018-032","9018-033","9026-001","9026-002","9026-003","9026-004","9026-005","9026-006","9026-007","9026-008","9026-009","9026-010","9026-011","9026-012","9026-013","905","906","907","9999-9999","Container1","Container2","Container3","Container4","Container5","EE-B 6000","EE-B 770","EE-BB 303","EE-BB 36E","EE-BB 750","EE-BB 760","EE-BB 95E","EE-DH 234","EE-L 820","Serverraum 1","TEST-001"]);
@@ -527,25 +683,61 @@ let sessionTakenByBranch={};
 let sheetCounterCache={};
 
 // ══════════ INIT ══════════
-(function init(){
+async function buildBranchSelect(){
   const sel=document.getElementById('branch');
+  [...sel.querySelectorAll('optgroup')].forEach(g=>g.remove());
   const grpFil=document.createElement('optgroup');grpFil.label='Filialen';
-  const grpInt=document.createElement('optgroup');grpInt.label='Produktion / Lager';
-  BRANCHES.forEach(b=>{
-    const o=document.createElement('option');o.value=b.c;
-    o.textContent=`${b.c} · ${b.n}${b.a?` (${b.a})`:''}`;
-    (b.c.startsWith('99')?grpInt:grpFil).appendChild(o);
+  const grpInt=document.createElement('optgroup');grpInt.label='Produktion / Lager / Werkstatt';
+  orteList().forEach(o=>{
+    const b=BRANCHES.find(x=>x.c===o.code);
+    const op=document.createElement('option');op.value=o.code;
+    op.textContent=`${o.code} · ${o.name}${b&&b.a?` (${b.a})`:''}`;
+    (o.gruppe==='Intern'?grpInt:grpFil).appendChild(op);
   });
   sel.appendChild(grpFil);sel.appendChild(grpInt);
+  // Einlagern-Ziel: alle internen Orte mit Bereichen
+  const mt=document.getElementById('moveTarget');
+  [...mt.querySelectorAll('optgroup')].forEach(g=>g.remove());
+  orteList().filter(o=>o.gruppe==='Intern').forEach(o=>{
+    const g=document.createElement('optgroup');g.label=`${o.code} · ${o.name}`;
+    bereicheOf(o.code).forEach(r=>{const op=document.createElement('option');
+      op.value=r.bereich||o.name;op.textContent=r.bereich?r.bereich:`${o.name} (allgemein)`;g.appendChild(op);});
+    mt.appendChild(g);
+  });
+}
+function fillLocationOptions(code){
+  const sel=document.getElementById('location');sel.innerHTML='';
+  const hint=document.getElementById('locHint');
+  const mk=(label,rows,ortName)=>{const g=document.createElement('optgroup');g.label=label;
+    rows.forEach(r=>{const op=document.createElement('option');op.value=r.bereich||ortName;
+      op.textContent=r.bereich?r.bereich:`${ortName} (allgemein)`;g.appendChild(op);});sel.appendChild(g);};
+  const here=orteList().find(o=>o.code===code);
+  if(!here||here.gruppe!=='Intern'){
+    const g=document.createElement('optgroup');g.label='Filiale';
+    const op=document.createElement('option');op.value='Einsatzort';op.textContent='📍 Einsatzort (in der Filiale)';g.appendChild(op);sel.appendChild(g);
+  }
+  orteList().filter(o=>o.gruppe==='Intern').forEach(o=>mk(`${o.code} · ${o.name}`,bereicheOf(o.code),o.name));
+  // Default: Filiale -> Einsatzort, interner Ort -> dessen Standard-Bereich
+  sel.value=(here&&here.gruppe==='Intern')?(bereicheOf(code)[0]||{}).bereich||here.name:'Einsatzort';
+  hint.textContent=(here&&here.gruppe==='Intern')?'Bereich bitte prüfen — bestimmt den Ort in Remberg.':'';
+}
+(async function init(){
+  ORTE=parseOrte(ORTE_FALLBACK);
+  try{const r=await fetch('orte.csv',{cache:'no-store'});if(r.ok){const t=await r.text();const o=parseOrte(t);if(o.length>5)ORTE=o;}}catch(e){}
+  await buildBranchSelect();
+  fillLocationOptions('');
   const dl=document.getElementById('typeList');
   TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;dl.appendChild(o);});
+  document.querySelectorAll('.chips').forEach(c=>c.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    document.getElementById(c.dataset.for).value=b.textContent;})));
+  loadOrgs();
   // letzter Erfasser
   const sc=localStorage.getItem('rb_captor_intern');
   if(sc){['captor','captorMove','captorExit'].forEach(id=>{
     const s=document.getElementById(id);
     if([...s.options].some(o=>o.value===sc))s.value=sc;});}
-  const nFil=BRANCHES.filter(b=>!b.c.startsWith('99')).length;
-  const nInt=BRANCHES.filter(b=>b.c.startsWith('99')).length;
+  const nFil=orteList().filter(o=>o.gruppe!=='Intern').length;
+  const nInt=orteList().filter(o=>o.gruppe==='Intern').length;
   document.getElementById('dataMeta').textContent=
     `📊 Datenstand: ${DATA_DATE} · ${nFil} Filialen + ${nInt} interne Orte · ${TYPES.length} Typen · ${VALID_IDS.size} IDs`;
 })();
@@ -563,14 +755,7 @@ function setMode(mode){
 function onBranchChange(){
   const code=document.getElementById('branch').value;
   if(!code){const i=document.getElementById('assetId');i.value='';i.placeholder='Erfassungsort wählen …';i.className='';setIdStatus('','');return;}
-  // Standort-Default smart setzen: bei Produktion/Lager den passenden Standort vorwählen
-  const b=BRANCHES.find(x=>x.c===code);
-  if(b&&code.startsWith('99')){
-    const map={'9900':'loc-prod','9901':'loc-broda','9902':'loc-mammitzsch','9903':'loc-werkstatt'};
-    const target=document.getElementById(map[code]);if(target)target.checked=true;
-  }else{
-    document.getElementById('loc-site').checked=true;
-  }
+  fillLocationOptions(code);
   suggestNextId();
 }
 async function fetchSheetCounter(code){
@@ -585,7 +770,7 @@ async function fetchSheetCounter(code){
 async function suggestNextId(){
   const code=document.getElementById('branch').value;
   if(!code)return;
-  const b=BRANCHES.find(x=>x.c===code);if(!b)return;
+  const b=BRANCHES.find(x=>x.c===code)||{c:code,n:'',a:0,t:[]};
   setIdStatus('','⏳ Nächste ID …');
   const sheetMax=await fetchSheetCounter(code);
   const taken=new Set([...b.t,...(sessionTakenByBranch[code]||[])]);
@@ -596,8 +781,12 @@ async function suggestNextId(){
   setIdStatus('ok',`✓ Vorschlag · nächste freie Nr. (Basis: ${sheetMax} vergeben)`);
 }
 // Prüft, ob eine Anlagen-ID bereits existiert — in Remberg (Export) ODER in dieser Session.
+// Führende Nullen: 522 == 00522 == 0522 (Remberg speichert 00522)
+function normId(s){s=String(s||'').trim();if(/^\d+$/.test(s))return String(parseInt(s,10));const m=s.match(/^(\d+)-(\d+)$/);return m?parseInt(m[1],10)+'-'+parseInt(m[2],10):s.toUpperCase();}
+const NORM_IDS=new Map();VALID_IDS.forEach(id=>{if(!NORM_IDS.has(normId(id)))NORM_IDS.set(normId(id),id);});
+function canonicalId(v){return NORM_IDS.get(normId(v))||'';}
 function idExists(v){
-  if(VALID_IDS.has(v)) return true;                        // voller Remberg-ID-Satz (Export)
+  if(VALID_IDS.has(v)||NORM_IDS.has(normId(v))) return true;                        // voller Remberg-ID-Satz (Export)
   const parts=v.split('-');
   if(parts.length===2){
     const code=parts[0], c=parseInt(parts[1],10);
@@ -631,7 +820,7 @@ function onIdInput(){
     else{i.className='id-manual';setIdStatus('manual','✎ Manuell — frei');}
   }else if(status==='bestand'){
     // Bestand: ID SOLL existieren
-    if(exists){i.className='id-suggested';setIdStatus('ok','✓ Im Bestand gefunden');}
+    if(exists){i.className='id-suggested';setIdStatus('ok','✓ Im Bestand gefunden');schedulePrefill(v);}
     else{i.className='id-warning';setIdStatus('warn','⚠ Nicht im bekannten Bestand — bitte prüfen (Datenstand ggf. älter)');}
   }else{
     // Status noch nicht gewählt: nur informativ
@@ -639,6 +828,43 @@ function onIdInput(){
     else if(v===suggestedId){i.className='id-suggested';setIdStatus('ok','✓ Vorgeschlagene ID');}
     else{i.className='id-manual';setIdStatus('manual','✎ Manuell überschrieben');}
   }
+}
+
+// ══════════ VORBELEGUNG AUS REMBERG (bekannte ID) ══════════
+let prefillTimer=null, prefillFor='';
+function schedulePrefill(id){
+  clearTimeout(prefillTimer);
+  if(!id||!idExists(id)||id===prefillFor)return;
+  prefillTimer=setTimeout(()=>prefillFromRemberg(id),450);
+}
+async function prefillFromRemberg(id){
+  prefillFor=id;
+  setIdStatus('ok','✓ Bestandsanlage — lade Daten aus Remberg …');
+  let d=null;
+  try{const r=await fetch(`${WEBHOOK}?action=asset&id=${encodeURIComponent(id)}`);d=await r.json();}catch(e){}
+  if(document.getElementById('assetId').value.trim()!==id)return;   // inzwischen geändert
+  if(!d||!d.found){setIdStatus('ok','✓ Bestandsanlage — ID bekannt (keine Details im Sheet)');return;}
+  const setIfEmpty=(elId,val)=>{const el=document.getElementById(elId);if(el&&val&&!el.value.trim()){el.value=val;return true;}return false;};
+  let n=0;
+  if(d.type&&setIfEmpty('assetType',d.type)){n++;onTypeChange();}
+  if(setIfEmpty('manufacturer',d.hersteller))n++;
+  if(setIfEmpty('serialNo',d.seriennummer))n++;
+  if(setIfEmpty('supplier',d.lieferant))n++;
+  // Wartung: Vertrag vorhanden -> Ja + Kontakt + Zyklus; Intervalle als Text
+  const wb=document.getElementById('wartBlock');
+  if(d.wartungsvertrag||d.wartungsintervall||d.tuevIntervall){
+    if(!wartRequired){wartOpen=true;updateWartBlock();}
+    if(d.wartungsvertrag&&!document.getElementById('wartKontakt').value.trim()){document.getElementById('wart-ja').checked=true;onWartungChange();n++;}
+    if(setIfEmpty('wartKontakt',d.wartungsvertrag))n++;
+    if(d.wartungsintervall&&setIfEmpty('wartZyklus',`${parseInt(d.wartungsintervall,10)} Monate`))n++;
+    if(d.tuevIntervall&&!document.getElementById('pruefung').value.trim()){document.getElementById('pruef-ja').checked=true;onPruefungChange();document.getElementById('pruefung').value=`TÜV ${parseInt(d.tuevIntervall,10)} Monate`;n++;}
+  }
+  const where=d.parent?` · ${d.parent}`:'';
+  setIdStatus('ok',`✓ Bestand: ${d.name||d.type}${where}${n?` — ${n} Felder vorbelegt, bitte prüfen`:''}`);
+}
+function canonicalizeId(){
+  const i=document.getElementById('assetId');const v=i.value.trim();const c=canonicalId(v);
+  if(c&&c!==v){i.value=c;onIdInput();}
 }
 function setIdStatus(type,msg){const e=document.getElementById('idStatus');e.textContent=msg;e.className='id-status '+type;}
 
@@ -666,10 +892,58 @@ function onTypeChange(){
     document.getElementById('serialNo').value='';
     document.getElementById('supplier').value='';
   }
+  // Wartung/Prüfung: Pflichtblock bei größeren Geräten, sonst aufklappbar
+  wartRequired=WART_TYPES.has(type);
+  updateWartBlock();
   // Foto-Pflicht: bei nachrangigen Typen (Kabel, Verteiler etc.) ist das Anlagen-Foto optional
   const noPhoto=NO_PHOTO_TYPES.has(type);
   document.getElementById('fotoReq').style.display=noPhoto?'none':'';
   document.getElementById('assetPhotoTxt').textContent=noPhoto?'Anlage (optional)':'Anlage';
+}
+
+// ══════════ WARTUNG / PRÜFUNG ══════════
+function updateWartBlock(){
+  const show=wartRequired||wartOpen;
+  document.getElementById('wartBlock').style.display=show?'flex':'none';
+  const t=document.getElementById('wartToggle');
+  t.style.display=wartRequired?'none':'';
+  t.textContent=wartOpen?'− Wartung / Prüfung ausblenden':'+ Wartung / Prüfung erfassen';
+  if(!show)clearWartung();
+}
+function toggleWartung(){wartOpen=!wartOpen;updateWartBlock();}
+function onWartungChange(){
+  const v=document.querySelector('input[name="wartung"]:checked')?.value||'';
+  document.getElementById('wartDetails').style.display=v==='ja'?'flex':'none';
+  if(v!=='ja'){document.getElementById('wartKontakt').value='';document.getElementById('wartZyklus').value='';}
+}
+function onPruefungChange(){
+  const v=document.querySelector('input[name="pruefungJN"]:checked')?.value||'';
+  document.getElementById('pruefDetails').style.display=v==='ja'?'block':'none';
+  if(v!=='ja')document.getElementById('pruefung').value='';
+}
+function clearWartung(){
+  document.getElementById('wart-nein').checked=true;
+  document.getElementById('pruef-nein').checked=true;
+  ['wartKontakt','wartZyklus','pruefung'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('wartDetails').style.display='none';
+  document.getElementById('pruefDetails').style.display='none';
+}
+function wartValues(){
+  return {wartung:document.querySelector('input[name="wartung"]:checked')?.value||'',
+          wartKontakt:document.getElementById('wartKontakt').value.trim(),
+          wartZyklus:document.getElementById('wartZyklus').value.trim(),
+          pruefung:(document.querySelector('input[name="pruefungJN"]:checked')?.value||'')==='ja'?document.getElementById('pruefung').value.trim():'nein'};
+}
+function validateWartung(){
+  if(!(wartRequired||wartOpen))return '';
+  const w=wartValues();
+  if(!w.wartung)return 'Bitte angeben, ob eine Wartung vorhanden ist (Ja/Nein).';
+  if(w.wartung==='ja'&&!w.wartKontakt)return 'Bitte den Wartungskontakt angeben.';
+  if(w.wartung==='ja'&&!w.wartZyklus)return 'Bitte den Wartungszyklus angeben.';
+  const pj=document.querySelector('input[name="pruefungJN"]:checked')?.value||'';
+  if(!pj)return 'Bitte angeben, ob eine Prüfung / TÜV vorgesehen ist (Ja/Nein).';
+  if(pj==='ja'&&!document.getElementById('pruefung').value.trim())return 'Bitte angeben, welche Prüfung / welcher Zyklus vorgesehen ist.';
+  return '';
 }
 
 // ══════════ EINLAGERN / ABGANG: ID-LOOKUP ══════════
@@ -832,7 +1106,7 @@ async function sendErfassung(){
   const assetId=document.getElementById('assetId').value.trim();
   const assetType=document.getElementById('assetType').value.trim();
   const assetStatus=document.querySelector('input[name="assetStatus"]:checked')?.value||'';
-  const location=document.querySelector('input[name="location"]:checked')?.value||'Einsatzort';
+  const location=document.getElementById('location').value||'Einsatzort';
   const captor=document.getElementById('captor').value;
   const manufacturer=document.getElementById('manufacturer').value.trim();
   const serialNo=document.getElementById('serialNo').value.trim();
@@ -854,6 +1128,7 @@ async function sendErfassung(){
     if(!supplier){alert(`Für „${assetType}" ist der Lieferant verpflichtend.`);return;}
     if(rule.s&&!serialNo){alert(`Für „${assetType}" ist die Seriennummer verpflichtend.`);return;}
   }
+  const wErr=validateWartung();if(wErr){alert(wErr);return;}
   if(!photoAsset && !NO_PHOTO_TYPES.has(assetType)){alert('Bitte Foto der Anlage aufnehmen.');return;}
 
   // Letzte Prüfung vor dem Senden: ID gegen die Sheets (Erfassungen anderer Geräte/Sessions)
@@ -876,7 +1151,7 @@ async function sendErfassung(){
   const branchName=BRANCHES.find(b=>b.c===branchCode)?.n||'';
   const ok=await postPayload({
     mode:'intern',sheet:'erfassung',branch:branchCode,branchName,assetId,assetStatus,assetType,
-    manufacturer,serialNo,supplier,location,captor,qrLink:qrLink||'',qrCode:qrCode||'',
+    manufacturer,serialNo,supplier,location,captor,qrLink:qrLink||'',qrCode:qrCode||'',...wartValues(),
     timestamp:new Date().toISOString(),comment:document.getElementById('comment').value.trim(),
     inBenning:document.getElementById('inBenning').checked,
     needsFollowUp:document.getElementById('needsFollowUp').checked,
@@ -892,7 +1167,7 @@ async function sendErfassung(){
 
 async function sendEinlagern(){
   const id=document.getElementById('moveId').value.trim();
-  const target=document.querySelector('input[name="moveTarget"]:checked')?.value||'';
+  const target=document.getElementById('moveTarget').value||'';
   const captor=document.getElementById('captorMove').value;
   if(!id){alert('Bitte Anlagen-ID eingeben.');return;}
   if(!target){alert('Bitte Ziel wählen.');return;}
@@ -959,17 +1234,18 @@ function resetCurrentMode(full){
     document.getElementById('serialNo').value='';
     document.getElementById('supplier').value='';
     document.getElementById('comment').value='';
-    document.getElementById('loc-site').checked=true;
+    fillLocationOptions(document.getElementById('branch').value);
+    wartOpen=false;clearWartung();updateWartBlock();
     document.getElementById('inBenning').checked=false;
     document.getElementById('needsFollowUp').checked=false;
-    onTypeChange();setIdStatus('','');suggestedId=null;
+    onTypeChange();setIdStatus('','');suggestedId=null;prefillFor='';
     clearPhoto('asset',{stopPropagation(){},preventDefault(){}});
     clearPhoto('qr',{stopPropagation(){},preventDefault(){}});
     if(!full&&document.getElementById('branch').value)suggestNextId();
   }else if(currentMode==='einlagern'){
     document.getElementById('moveId').value='';document.getElementById('moveId').className='';
     document.getElementById('moveStatus').textContent='';
-    document.querySelectorAll('input[name="moveTarget"]').forEach(r=>r.checked=false);
+    document.getElementById('moveTarget').value='';
     document.getElementById('commentMove').value='';
     clearPhoto('move',{stopPropagation(){},preventDefault(){}});
   }else if(currentMode==='abgang'){
@@ -992,9 +1268,10 @@ async function cancelEntry(){
     hasData=document.getElementById('assetId').value.trim()||document.getElementById('assetType').value.trim()||
       document.getElementById('manufacturer').value.trim()||document.getElementById('serialNo').value.trim()||
       document.getElementById('supplier').value.trim()||document.getElementById('comment').value.trim()||
+      (wartValues().wartung==='ja')||(wartValues().pruefung!=='nein')||
       document.querySelector('input[name="assetStatus"]:checked')||photoAsset||photoQR;
   }else if(currentMode==='einlagern'){
-    hasData=document.getElementById('moveId').value.trim()||document.querySelector('input[name="moveTarget"]:checked')||photoMove;
+    hasData=document.getElementById('moveId').value.trim()||document.getElementById('moveTarget').value||photoMove;
   }else if(currentMode==='abgang'){
     hasData=document.getElementById('exitId').value.trim()||document.querySelector('input[name="exitType"]:checked')||photoExit;
   }

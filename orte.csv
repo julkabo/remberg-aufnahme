@@ -1,0 +1,82 @@
+﻿code;ort;bereich;remberg_parent;gruppe;aktiv;hinweis;kostenstelle
+9002;Fiwa Süd;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9003;Fiwa Edeka;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9005;Fiwa Markt;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9006;Sowa Markt;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9007;Herzb. Penny;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9008;Falkenberg Uebigauer;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9009;Eda Rewe;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9010;L'au Ehm-W.;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9011;Falkenberg Netto;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9012;Fiwa Nord;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9014;Ba Li Rossmarkt;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9015;Großrä Rudolf-B;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9017;Calau Cottbuser;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9018;Kirchh. Markt;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9019;Luckau;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9022;Schwarzheide Rewe;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9023;Herzb. Zentrum;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9024;Lübben;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9025;Cottbus Rosenstraße;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9026;Kirchh. Edeka;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9027;Jüterbog Markt;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9028;Luckenwalde;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9031;Sfb Rewe;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9032;Ba Li Rewe;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9033;Jessen;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9034;Jüterbog Netto;;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9035;Puschkinstraße (TG Edeka);;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9037;Röhrweg (TG Netto);;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9039;Turnierplatzweg (TG Kaufland);;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+9042;Leipziger Straße (TG);;;Filiale;ja;Parent automatisch: Innenbereich-Knoten der Filiale;
+2000;Betriebsstätte allgemein;;Betriebsstätte DoKi;Intern;ja;Knoten vorhanden;200
+2001;Heizraum;;Heizraum;Intern;ja;NEU: Knoten in Remberg anlegen (unter Betriebsstätte DoKi);200
+2002;Serverraum;;Serverraum 1;Intern;ja;Knoten vorhanden (Verwaltung);200
+2003;Lüftungsraum;;Lüftungsraum;Intern;ja;NEU: Knoten anlegen (unter Betriebsstätte DoKi);200
+2004;WCs;;WCs;Intern;ja;NEU: Knoten anlegen (unter Sozialräume);200
+2005;Gr Salon;;Gr Salon;Intern;ja;NEU: Knoten anlegen (unter Betriebsstätte DoKi);200
+2006;Müllplatz;;Müllplatz;Intern;ja;NEU: Knoten anlegen (unter Betriebsstätte DoKi);200
+2007;Abwasch;;Abwasch;Intern;ja;Knoten vorhanden (Produktion);200
+2010;Rohstofflager;;Rohstofflager;Intern;ja;Knoten vorhanden (Lager);200
+2011;Außenlager;;Außenlager;Intern;ja;NEU: Knoten anlegen (unter Lager) — oder meinst du Sonnewalde/Mammitsch?;200
+2012;Kühlzellen;;Kühlzellen;Intern;ja;"NEU: Knoten anlegen (unter Produktion); jede Kühlzelle = eigenes Asset 2012-xxx";200
+2013;Lager Sonnewalde;;Außenager Sonnewalde;Intern;ja;Knoten vorhanden (Tippfehler in Remberg);
+2014;Lager Mammitsch;;Außenlager Mammitsch;Intern;ja;Knoten vorhanden;
+2015;Lager Broda;;Lager;Intern;ja;Knoten vorhanden (= Hauptlager);
+2020;Kuchen;;Kuchen;Intern;ja;Knoten vorhanden (Produktion);20
+2030;Kleingebäck;;Kleingebäck;Intern;ja;Knoten vorhanden (Produktion);30
+2040;Kondi;;Kondi;Intern;ja;Knoten vorhanden (Produktion);40
+2050;Küche;;Küche;Intern;ja;Knoten vorhanden (Produktion);50
+2060;Brot/Brötchen;;Brot;Intern;ja;Knoten vorhanden (Produktion);60
+2070;Kommissionierung / Logistik;;Kommissionierung / Logistik;Intern;ja;NEU: Knoten anlegen (unter Betriebsstätte DoKi);70
+2090;Silo / Teigmacherei;;Teigmacherei;Intern;ja;"Knoten vorhanden; ""Siloraum"" gibt es zusätzlich — Kostenstelle lt. Enaio prüfen";90
+9900;Produktion;;Produktion;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Abwasch;Abwasch;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Brot;Brot;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Kleingebäck;Kleingebäck;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Kondi;Kondi;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Kuchen;Kuchen;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Küche;Küche;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Siloraum;Siloraum;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9900;Produktion;Teigmacherei;Teigmacherei;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;;Lager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Hochregallager;Hochregallager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Kistenlager;Kistenlager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Kombi-Lager;Kombi-Lager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Ersatzteillager;Ersatzteillager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Reinigungsmittellager;Reinigungsmittellager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Rohstofflager;Rohstofflager;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Container 1;Container1;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Container 2;Container2;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Container 3;Container3;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Container 4;Container4;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9901;Lager Broda;Container 5;Container5;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9902;Lager Mammitzsch;;Außenlager Mammitsch;Intern;nein;"ersetzt durch Raumcodes 20xx (03.11.2026); Bestand 9900-/9901- bleibt";
+9903;Werkstatt;;Werkstatt;Intern;ja;;
+9904;Verwaltung;;Verwaltung;Intern;nein;Vorschlag — Code bestätigen;
+9904;Verwaltung;Serverraum 1;Serverraum 1;Intern;nein;Vorschlag;
+9904;Verwaltung;Serverraum Broda;Serverraum Broda;Intern;nein;Vorschlag;
+9904;Verwaltung;IT/Technik-Büro;IT/Technik-Büro;Intern;nein;Vorschlag;
+9905;Sozialräume;;Sozialräume;Intern;nein;Vorschlag — Code bestätigen;
+9906;Fuhrpark;;Fuhrpark;Intern;nein;Vorschlag — Code bestätigen;
+9907;Außenlager Sonnewalde;;Außenager Sonnewalde;Intern;nein;"Vorschlag; Remberg-Knoten heißt ""Außenager"" (Tippfehler)";
