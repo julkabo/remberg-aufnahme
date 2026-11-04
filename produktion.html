@@ -55,6 +55,8 @@ select,input[type="text"]{width:100%;background:var(--card);border:1.5px solid v
   appearance:none;transition:border-color .15s,box-shadow .15s;}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+select,option,optgroup{color-scheme:light;}
+option,optgroup{color:#1c1917;background:#fff;font-weight:600;}
 select:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(171,0,0,.10);}
 input[type="text"]::placeholder{font-size:14px;font-weight:500;color:var(--text-sm);}
 
@@ -654,27 +656,36 @@ function onIdInput(){
   if(!v){i.className='';setIdStatus('','');return;}
   if(idExists(v)){i.className='id-suggested';setIdStatus('ok','✓ Bestandsanlage — ID ist in Remberg bekannt');schedulePrefill(v);}
   else if(v===suggestedId){i.className='id-suggested';setIdStatus('ok','✓ Neue ID (Vorschlag, frei)');}
-  else{i.className='id-manual';setIdStatus('manual','✎ Neue ID, manuell — frei');}
+  else{i.className='id-manual';setIdStatus('manual','✎ Neue ID, manuell — frei');schedulePrefill(v,true);}
 }
 function derivedStatus(){const v=document.getElementById('assetId').value.trim();return idExists(v)?'bestand':'neu';}
 
 // ══════════ VORBELEGUNG AUS REMBERG (bekannte ID) ══════════
 let prefillTimer=null, prefillFor='';
-function schedulePrefill(id){
+function schedulePrefill(id,force){
   clearTimeout(prefillTimer);
-  if(!id||!idExists(id)||id===prefillFor)return;
-  prefillTimer=setTimeout(()=>prefillFromRemberg(id),450);
+  if(!id||id===prefillFor)return;
+  if(!force&&!idExists(id))return;
+  prefillTimer=setTimeout(()=>prefillFromRemberg(id),force?700:450);
 }
 async function prefillFromRemberg(id){
   prefillFor=id;
-  setIdStatus('ok','✓ Bestandsanlage — lade Daten aus Remberg …');
+  const idEl=document.getElementById('assetId');
+  if(idEl.value.trim()!==id)return;                                   // inzwischen weitergetippt
+  const known=idExists(id);                                           // in der Remberg-Liste der App?
+  if(known)setIdStatus('ok','✓ Bestandsanlage — lade Daten aus Remberg …');
   let d=null;
   try{const r=await fetch(`${WEBHOOK}?action=asset&id=${encodeURIComponent(id)}`);d=await r.json();}catch(e){}
-  if(document.getElementById('assetId').value.trim()!==id)return;   // inzwischen geändert
-  if(!d||!d.found){setIdStatus('ok','✓ Bestandsanlage — ID bekannt (keine Details im Sheet)');return;}
+  if(idEl.value.trim()!==id)return;                                   // inzwischen geändert
+  if(!d||!d.found){
+    if(!known)return;                                                 // unbekannte ID: Status „neu/manuell" stehen lassen
+    setIdStatus(d&&d.error?'warn':'ok',d&&d.error?('⚠ Vorbelegung nicht möglich: '+d.error):'✓ Bestandsanlage — ID bekannt (keine Details im Sheet)');return;}
   const setIfEmpty=(elId,val)=>{const el=document.getElementById(elId);if(el&&val&&!el.value.trim()){el.value=val;return true;}return false;};
   let n=0;
-  if(d.type&&setIfEmpty('assetType',d.type)){n++;onTypeChange();}
+  // Typ: aus Remberg; fehlt er (nur Benning bekannt), Benning-Bezeichnung gegen die Typliste abgleichen
+  let typ=d.type||'';
+  if(!typ&&d.benningBezeichnung){const b=d.benningBezeichnung.trim().toLowerCase();typ=TYPES.find(t=>t.toLowerCase()===b)||'';}
+  if(typ&&setIfEmpty('assetType',typ)){n++;onTypeChange();}
   if(setIfEmpty('manufacturer',d.hersteller))n++;
   if(setIfEmpty('serialNo',d.seriennummer))n++;
   if(setIfEmpty('supplier',d.lieferant))n++;
@@ -688,7 +699,11 @@ async function prefillFromRemberg(id){
     if(d.tuevIntervall&&!document.getElementById('pruefung').value.trim()){document.getElementById('pruef-ja').checked=true;onPruefungChange();document.getElementById('pruefung').value=`TÜV ${parseInt(d.tuevIntervall,10)} Monate`;n++;}
   }
   const where=d.parent?` · ${d.parent}`:'';
-  setIdStatus('ok',`✓ Bestand: ${d.name||d.type}${where}${n?` — ${n} Felder vorbelegt, bitte prüfen`:''}`);
+  const ab=(d.ausBenning||[]).map(k=>({hersteller:'Hersteller',seriennummer:'Seriennr.'}[k]||k));
+  if(d.quelle==='Benning'){   // nur in der Prüfdatenbank bekannt -> in Remberg neu anzulegen, aber Felder übernehmen
+    setIdStatus('manual',`✎ Neu in Remberg, in Benning bekannt: ${d.name||''}${where}${n?` — ${n} Felder vorbelegt, bitte prüfen`:''}`);return;}
+  const quelle=ab.length?` · aus Benning: ${ab.join(', ')}`:'';
+  setIdStatus('ok',`✓ Bestand: ${d.name||d.type}${where}${n?` — ${n} Felder vorbelegt, bitte prüfen`:''}${quelle}`);
 }
 function canonicalizeId(){
   const i=document.getElementById('assetId');const v=i.value.trim();const c=canonicalId(v);
