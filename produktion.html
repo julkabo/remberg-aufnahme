@@ -55,6 +55,7 @@ select,input[type="text"]{width:100%;background:var(--card);border:1.5px solid v
   appearance:none;transition:border-color .15s,box-shadow .15s;}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+#updateBar{position:sticky;top:0;z-index:50;background:#1d4ed8;color:#fff;font-weight:700;font-size:13px;padding:10px 14px;text-align:center;cursor:pointer}
 select,option,optgroup{color-scheme:light;}
 option,optgroup{color:#1c1917;background:#fff;font-weight:600;}
 select:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(171,0,0,.10);}
@@ -384,6 +385,29 @@ optgroup{font-weight:800;color:var(--text-sm);}
 <script>
 // ══════════ KONFIGURATION ══════════
 const WEBHOOK   =  'https://script.google.com/macros/s/AKfycby0ILB-9Xp-fVGerbFciachahLzuWKqXQy2SUfwZoFeE3enY3ql3JpR6TelkAThh9L29A/exec';
+// ── Update-Hinweis: version.txt im Repo wird beim Start, alle 10 Min. und beim Zurückkehren in den Tab gelesen (ca. 20 Byte) ──
+const APP_VERSION='2026-11-09';
+let updateShown=false;
+async function checkAppVersion(){
+  try{
+    const r=await fetch('version.txt?_='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return;
+    const v=(await r.text()).trim();
+    if(v&&v>APP_VERSION&&!updateShown){                                        // nur echt neuere Version (Datumsvergleich)
+      updateShown=true;
+      let already='';try{already=sessionStorage.getItem('rb_reloaded_for')||'';}catch(e){}
+      const idle=!document.getElementById('assetId')?.value&&![...document.querySelectorAll('img.preview')].some(i=>i.src&&i.src.startsWith('data:'));
+      if(idle&&document.visibilityState==='visible'&&already!==v){               // nichts eingegeben -> einmal neu laden (kein Reload-Kreisel)
+        try{sessionStorage.setItem('rb_reloaded_for',v);}catch(e){}
+        location.reload();return;}
+      const b=document.createElement('div');b.id='updateBar';
+      b.innerHTML='🔄 Neue Version der App — nach dem Speichern bitte <b>hier tippen</b>, um zu aktualisieren.';
+      b.onclick=()=>location.reload();document.body.prepend(b);
+    }
+  }catch(e){}
+}
+checkAppVersion();setInterval(checkAppVersion,10*60*1000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkAppVersion();});
 const DATA_DATE = '12.05.2026';
 
 // ══════════ EINGEBETTETE DATEN ══════════
