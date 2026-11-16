@@ -509,7 +509,26 @@ function onIdInput() {
   } else {
     idInput.className = 'manual';
     setIdStatus('manual', '✎ Manuell überschrieben');
+    scheduleCheck(val);
   }
+}
+
+// ── ID-Prüfung gegen Sheet + Remberg-Bestand (Apps Script checkId) — verhindert Doppelvergabe ──
+let idBlocked = false, checkTimer = null;
+function scheduleCheck(val) {
+  idBlocked = false; clearTimeout(checkTimer);
+  checkTimer = setTimeout(() => checkId(val), 500);
+}
+async function checkId(val) {
+  try {
+    const res = await fetch(`${WEBHOOK}?action=checkId&id=${encodeURIComponent(val)}`);
+    const d = await res.json();
+    if (document.getElementById('assetId').value.trim() !== val) return;      // inzwischen geändert
+    if (d.exists) {
+      idBlocked = true;
+      setIdStatus('manual', '⛔ ID existiert bereits (Sheet/Remberg) — bitte 🔄 für einen neuen Vorschlag');
+    }
+  } catch (e) { /* offline: keine Blockade, Server prüft beim Push erneut */ }
 }
 
 function setIdStatus(type, msg) {
@@ -592,6 +611,7 @@ async function send() {
 
   if (!branch)     { alert('Bitte Filiale wählen.'); return; }
   if (!assetId)    { alert('Bitte Anlagen-ID eingeben.'); return; }
+  if (idBlocked)   { alert('Diese Anlagen-ID ist schon vergeben. Bitte 🔄 drücken und den Vorschlag verwenden.'); return; }
   if (!assetType)  { alert('Bitte Anlagentyp wählen.'); return; }
   if (!captor)     { alert('Bitte Erfasserkürzel eingeben.'); return; }
   if (!photoAsset) { alert('Bitte Foto der Anlage aufnehmen.'); return; }
