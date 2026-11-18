@@ -369,7 +369,7 @@ form.show{display:flex;}
       <span class="lbl">Erfasser <span class="opt">opt.</span></span>
       <select id="captor">
         <option value="">— wählen —</option>
-        <option value="Jörg">Jörg</option>
+        <option value="Jörg">Jörg</option><option value="Jens">Jens</option>
         <option value="Oliver">Oliver</option>
         <option value="Julian">Julian</option>
         <option value="Sonstige">Sonstige</option>
@@ -409,7 +409,7 @@ form.show{display:flex;}
       </div>
     </div>
     <div class="section">Zusatz</div>
-    <div><span class="lbl">Erfasser <span class="opt">opt.</span></span><select id="captorUmz"><option value="">— wählen —</option><option value="Jörg">Jörg</option><option value="Oliver">Oliver</option><option value="Julian">Julian</option><option value="Sonstige">Sonstige</option></select></div>
+    <div><span class="lbl">Erfasser <span class="opt">opt.</span></span><select id="captorUmz"><option value="">— wählen —</option><option value="Jörg">Jörg</option><option value="Jens">Jens</option><option value="Oliver">Oliver</option><option value="Julian">Julian</option><option value="Sonstige">Sonstige</option></select></div>
     <div><span class="lbl">Kommentar <span class="opt">opt.</span></span><input type="text" id="commentUmz" class="text-normal" placeholder="z.B. Grund, Ersatz für …"></div>
   </div>
 
@@ -436,7 +436,7 @@ form.show{display:flex;}
       </div>
     </div>
     <div class="section">Zusatz</div>
-    <div><span class="lbl">Erfasser <span class="opt">opt.</span></span><select id="captorMove"><option value="">— wählen —</option><option value="Jörg">Jörg</option><option value="Oliver">Oliver</option><option value="Julian">Julian</option><option value="Sonstige">Sonstige</option></select></div>
+    <div><span class="lbl">Erfasser <span class="opt">opt.</span></span><select id="captorMove"><option value="">— wählen —</option><option value="Jörg">Jörg</option><option value="Jens">Jens</option><option value="Oliver">Oliver</option><option value="Julian">Julian</option><option value="Sonstige">Sonstige</option></select></div>
     <div><span class="lbl">Kommentar <span class="opt">opt.</span></span><input type="text" id="commentMove" class="text-normal" placeholder="z.B. Grund der Einlagerung"></div>
   </div>
 
@@ -479,7 +479,7 @@ form.show{display:flex;}
       </div>
     </div>
     <div class="section">Zusatz</div>
-    <div><span class="lbl">Erfasser <span class="opt">opt.</span></span><select id="captorExit"><option value="">— wählen —</option><option value="Jörg">Jörg</option><option value="Oliver">Oliver</option><option value="Julian">Julian</option><option value="Sonstige">Sonstige</option></select></div>
+    <div><span class="lbl">Erfasser <span class="opt">opt.</span></span><select id="captorExit"><option value="">— wählen —</option><option value="Jörg">Jörg</option><option value="Jens">Jens</option><option value="Oliver">Oliver</option><option value="Julian">Julian</option><option value="Sonstige">Sonstige</option></select></div>
     <div><span class="lbl">Kommentar <span class="opt">opt.</span></span><input type="text" id="commentExit" class="text-normal" placeholder="Belegnummer, Käufer, …"></div>
   </div>
 
@@ -521,7 +521,7 @@ form.show{display:flex;}
 // ══════════ KONFIGURATION ══════════
 const WEBHOOK   =  'https://script.google.com/macros/s/AKfycby0ILB-9Xp-fVGerbFciachahLzuWKqXQy2SUfwZoFeE3enY3ql3JpR6TelkAThh9L29A/exec';
 // ── Update-Hinweis: version.txt im Repo wird beim Start, alle 10 Min. und beim Zurückkehren in den Tab gelesen (ca. 20 Byte) ──
-const APP_VERSION='2026-11-18';
+const APP_VERSION='2026-11-18b';
 let updateShown=false;
 async function checkAppVersion(){
   try{
